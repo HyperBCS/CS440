@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+
+{% include "head.html" %}
+
+We are displaying the body
+<br>
+<div id="board">
+    <table border="1" align="center" class="tr-font" id="tb">
+    {% for row in nums %}
+    <tr>
+    {% for i in row %}
+    {% if i == 0 %}
+    <td class="square">G</td>
+    {% else %}
+    <td class="square">{{i}}</td>
+    {% endif %}
+    {% endfor %}
+    </tr>
+    {% endfor %}
+    </table>
+  </div>
+
+</body>
+<html>
