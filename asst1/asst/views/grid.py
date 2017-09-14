@@ -1,4 +1,6 @@
 from flask import Blueprint, render_template, abort
+from flask import request
+from itertools import *
 import random
 
 page = Blueprint('main', __name__, template_folder='templates')
@@ -13,8 +15,13 @@ def make_grid_nums(n):
     num_arr[n-1][n-1] = 0
     return num_arr
 
-@page.route('/')
+@page.route("/",methods=['GET', 'POST'])
 def showhello():
-    grid = make_grid_nums(5)
+    size = 5
+    try:
+        size = int(request.form['size'])
+    except Exception as e:
+        pass
+    grid = make_grid_nums(size)
     '''Super basic function. Always shows "Hi"'''
-    return render_template('/grid.html', nums=grid)
+    return render_template('/grid.html', nums=grid, size=size)

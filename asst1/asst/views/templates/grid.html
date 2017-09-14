@@ -3,17 +3,42 @@
 
 {% include "head.html" %}
 
-We are displaying the body
 <br>
-<div id="board">
+<div class="container">
+    <div class="row">
+     <div class="dropdown col-sm-4">
+    <button class="btn btn-primary dropdown-toggle" id="size" type="button" data-toggle="dropdown">Grid Size
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+      <li><a href="#">5</a></li>
+      <li><a href="#">7</a></li>
+      <li><a href="#">9</a></li>
+      <li><a href="#">11</a></li>
+    </ul>
+  </div>
+
+  <form action="/" method="post">
+  <input type="hidden" name="size" id= "size_button" value= {{size}}>
+   <button type="submit" class="btn btn-primary col-sm-4">Randomize</button>
+</form> 
+
+<br>
+<div class="container">
+    <h2 align="center" id="puzzle_title">Puzzle Visualizer: Default</h2>
+
+</div>
+<div class="container">
+<div class="row">
+<div id="board-p" class="col col-sm-6">
+    <h3 align="center">Puzzle</h3>
     <table border="1" align="center" class="tr-font" id="tb">
-    {% for row in nums %}
+    {% for i in range(0,size) %}
     <tr>
-    {% for i in row %}
-    {% if i == 0 %}
-    <td class="square">G</td>
+    {% for j in range(0,size) %}
+    {% if nums[i][j] == 0 %}
+    <td class="square" id="g{{i*size + j}}">G</td>
     {% else %}
-    <td class="square">{{i}}</td>
+    <td class="square" id="g{{i*size + j}}">{{nums[i][j]}}</td>
     {% endif %}
     {% endfor %}
     </tr>
@@ -21,5 +46,98 @@ We are displaying the body
     </table>
   </div>
 
+<div id="board-c" class="col col-sm-6">
+    <h3 align="center">Puzzle Move Cost</h3>
+    <table border="1" align="center" class="tr-font" id="tb">
+    {% for i in range(0,size) %}
+    <tr>
+    {% for j in range(0,size) %}
+    {% if nums[i][j] == 0 %}
+    <td class="square" id="c{{i*size + j}}">G</td>
+    {% else %}
+    <td class="square" id="c{{i*size + j}}">{{nums[i][j]}}</td>
+    {% endif %}
+    {% endfor %}
+    </tr>
+    {% endfor %}
+    </table>
+  </div>
+</div>
+
+</div>
+
+<div class="container"><h2>Solution Visualizer</h2></div>
+
+<div id="exTab2" class="container"> 
+<ul class="nav nav-tabs">
+            <li class="active">
+            <a href="#1" data-toggle="tab">Default</a></li>
+            <li><a href="#2" data-toggle="tab">Hill Climbing - Basic</a></li>
+            <li><a href="#3" data-toggle="tab">Hill Climbing - Random Restarts</a></li>
+            <li><a href="#4" data-toggle="tab">Hill Climbing - Random Walk</a></li>
+            <li><a href="#5" data-toggle="tab">Simulated Annealing</a></li>
+            <li><a href="#6" data-toggle="tab">Population Based</a></li>
+        </ul>
+
+            <div class="tab-content ">
+              <div class="tab-pane active" id="1">
+          <h3>Standard tab panel created on bootstrap using nav-tabs</h3>
+                </div>
+
+                <div class="tab-pane" id="2">
+          <h3>Notice the gap between the content and tab after applying a background color</h3>
+          <button type="button" class="btn btn-success" id="solve-1">Solve</button>
+                </div>
+
+        <div class="tab-pane" id="3">
+          <h3>Solution 3</h3>
+                </div>
+
+        <div class="tab-pane" id="4">
+          <h3>Solution 4</h3>
+                </div>
+
+        <div class="tab-pane" id="5">
+          <h3>Solution 5</h3>
+                </div>
+
+        <div class="tab-pane" id="6">
+          <h3>Solution 6</h3>
+                </div>
+            </div>
+  </div>
+
+
 </body>
+
+<script>
+    var size = {{size}};
+   // Code used to set dropdown selected value
+function setAktivMenu(text) {
+   $('#size').val(text).html(function(i, html) {
+       return text + html.slice(html.indexOf(' <'));
+   });
+}
+  $('#size + .dropdown-menu').on('click', 'li>a', function() {
+    $('#size_button').val($(this).text())
+   setAktivMenu($(this).text());
+});
+
+$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+  var target = $(e.target).text() // activated tab
+  $('#puzzle_title').text("Puzzle Visualizer: " + target)
+})
+
+$( "#solve-1" ).click(function() {
+  setGrid();
+});
+
+function setGrid(){
+    for(i = 0; i < size*size;i++){
+        $('#g' + i).text(i)
+        $('#c' + i).text(i)
+    }
+}
+
+</script>
 <html>
