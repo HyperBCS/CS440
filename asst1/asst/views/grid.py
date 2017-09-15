@@ -29,13 +29,36 @@ def showhello():
     '''Super basic function. Always shows "Hi"'''
     return render_template('/grid.html', nums=grid, size=size, grid2=grid2)
 
+
 # Connect to basic hill climb in controller
-def doBasic(size):
-    return [random.randint(1, size-1) for x in range(size*size)]
+def doBasic(size, grid):
+    grid_calc = [random.randint(1, size-1) for x in range(size*size)]
+    grid_cost = [random.randint(1, size-1) for x in range(size*size)]
+    return grid_calc, grid_cost, "Basic solution"
 
 # Connect to restart in controller
-def doRestart(size):
-    return [0] * (size*size)
+def doRestart(size, grid):
+    grid_calc = [random.randint(1, size-1) for x in range(size*size)]
+    grid_cost = [random.randint(1, size-1) for x in range(size*size)]
+    return grid_calc, grid_cost, "Restart solution"
+
+# Connect to the random walk controller
+def doWalk(size, grid):
+    grid_calc = [random.randint(1, size-1) for x in range(size*size)]
+    grid_cost = [random.randint(1, size-1) for x in range(size*size)]
+    return grid_calc, grid_cost, "Walk solution"
+
+# Connect to the simulated anneal controller
+def doAnneal(size, grid):
+    grid_calc = [random.randint(1, size-1) for x in range(size*size)]
+    grid_cost = [random.randint(1, size-1) for x in range(size*size)]
+    return grid_calc, grid_cost, "Anneal solution"
+
+# Connect to the genetic population method controller
+def doGenetic(size, grid):
+    grid_calc = [random.randint(1, size-1) for x in range(size*size)]
+    grid_cost = [random.randint(1, size-1) for x in range(size*size)]
+    return grid_calc, grid_cost, "Genetic solution"
 
 @page.route("get_grids",methods=['POST'])
 def getgrids():
@@ -51,14 +74,24 @@ def getgrids():
         grid_c_o = data['grid_c']
     except Exception as e:
        print(e) 
-       return "Error"
-    if req_type == "basic":
-        grid = doBasic(size)
-        grid2 = doBasic(size)
-    if req_type == 'restart':
-        grid = doRestart(size)
-        grid2 = doRestart(size)
+       return "Error", 500
+    try:
+        if req_type == "basic":
+            grid, grid2, msg = doBasic(size, grid_o)
+        elif req_type == 'restart':
+            grid, grid2, msg = doRestart(size, grid_o)
+        elif req_type == 'walk':
+            grid, grid2, msg = doWalk(size, grid_o)
+        elif req_type == 'anneal':
+            grid, grid2, msg = doAnneal(size, grid_o)
+        elif req_type == 'genetic':
+            grid, grid2, msg = doGenetic(size, grid_o)
+        else:
+            return "Bad request", 400
+    except Exception as e:
+        print(e)
+        return "Internal Server Error", 500
 
     '''Super basic function. Always shows "Hi"'''
-    response = {"grid": grid, "grid2": grid2, "msg": "Success! Insert solution here"}
+    response = {"grid": grid, "grid2": grid2, "msg": msg}
     return json.dumps(response)
