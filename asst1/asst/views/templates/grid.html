@@ -2,7 +2,7 @@
 <html>
 
 {% include "head.html" %}
-
+<body onload="saveDefault()">
 <br>
 <div class="container">
     <div class="row">
@@ -29,6 +29,10 @@
 </div>
 <div class="container">
 <div class="row">
+<div id="loading" style="display: none;">
+    <h3>Loading.</h3>
+</div>
+<div id="boards">
 <div id="board-p" class="col col-sm-6">
     <h3 align="center">Puzzle</h3>
     <table border="1" align="center" class="tr-font" id="tb">
@@ -63,6 +67,7 @@
     </table>
   </div>
 </div>
+</div>
 
 </div>
 
@@ -71,12 +76,12 @@
 <div id="exTab2" class="container"> 
 <ul class="nav nav-tabs">
             <li class="active">
-            <a href="#1" data-toggle="tab">Default</a></li>
-            <li><a href="#2" data-toggle="tab">Hill Climbing - Basic</a></li>
-            <li><a href="#3" data-toggle="tab">Hill Climbing - Random Restarts</a></li>
-            <li><a href="#4" data-toggle="tab">Hill Climbing - Random Walk</a></li>
-            <li><a href="#5" data-toggle="tab">Simulated Annealing</a></li>
-            <li><a href="#6" data-toggle="tab">Population Based</a></li>
+            <a href="#1" data-toggle="tab" value="default">Default</a></li>
+            <li><a href="#2" data-toggle="tab" value="basic">Hill Climbing - Basic</a></li>
+            <li><a href="#3" data-toggle="tab" value="restart">Hill Climbing - Random Restarts</a></li>
+            <li><a href="#4" data-toggle="tab" value="walk">Hill Climbing - Random Walk</a></li>
+            <li><a href="#5" data-toggle="tab" value="anneal">Simulated Annealing</a></li>
+            <li><a href="#6" data-toggle="tab" value="genetic">Population Based</a></li>
         </ul>
 
             <div class="tab-content ">
@@ -86,7 +91,6 @@
 
                 <div class="tab-pane" id="2">
           <h3>Notice the gap between the content and tab after applying a background color</h3>
-          <button type="button" class="btn btn-success" id="solve-1">Solve</button>
                 </div>
 
         <div class="tab-pane" id="3">
@@ -111,6 +115,15 @@
 </body>
 
 <script>
+    var default_grid = []
+    var default_grid_cost = []
+    function saveDefault(){
+        for(i = 0; i < size*size;i++){
+            default_grid.push($('#g' + i).text())
+            default_grid_cost.push($('#c' + i).text())
+        }
+    }
+
     var size = {{size}};
    // Code used to set dropdown selected value
 function setAktivMenu(text) {
@@ -125,19 +138,56 @@ function setAktivMenu(text) {
 
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
   var target = $(e.target).text() // activated tab
+  var type = $(this).attr('value')
   $('#puzzle_title').text("Puzzle Visualizer: " + target)
+  $("#boards").hide();
+  $("#loading").show();
+  var active_tab = $('.tab-content .active').attr('id');
+  $('#' + active_tab + ' h3').text("loading...")
+  switch(type){
+    case "default":
+        setGrid(default_grid, default_grid_cost);
+        $("#loading").hide();
+        $("#boards").show();
+        $('#' + active_tab + ' h3').text(result.msg)
+        break;
+    default:
+        getData(type)
+    }
 })
 
-$( "#solve-1" ).click(function() {
-  setGrid();
-});
 
-function setGrid(){
+
+function getData(type){
+    $.ajax({
+    url: "/get_grids",
+    type: "POST",
+    data: JSON.stringify({grid: default_grid, grid_c: default_grid_cost, size: size, type: type}),
+    contentType: "application/json; charset=utf-8",
+    success: function(data) { result = JSON.parse(data); 
+        setGrid(result.grid,result.grid2)
+        var active_tab = $('.tab-content .active').attr('id');
+        $('#' + active_tab + ' h3').text(result.msg)
+        $("#loading").hide();
+        $("#boards").show();
+    }
+});
+}
+
+function setGrid(grid, grid_c){
     for(i = 0; i < size*size;i++){
-        $('#g' + i).text(i)
-        $('#c' + i).text(i)
+        $('#g' + i).text(grid[i]);
+        $('#c' + i).text(grid_c[i]);
     }
 }
+
+setInterval(function() {
+    if(($('#loading h3').text().match(/\./g) || []).length > 2){
+       $('#loading h3').text("Loading" + '.') 
+    } else{
+        $('#loading h3').text($('#loading h3').text() + '.')
+    }
+}, 1000);
 
 </script>
 <html>
