@@ -2,18 +2,47 @@
 <html>
 
 {% include "head.html" %}
-
-We are displaying the body
+<body onload="saveDefault()">
 <br>
-<div id="board">
+<div class="container">
+    <div class="row">
+     <div class="dropdown col-sm-4">
+    <button class="btn btn-primary dropdown-toggle" id="size" type="button" data-toggle="dropdown">Grid Size
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+      <li><a href="#">5</a></li>
+      <li><a href="#">7</a></li>
+      <li><a href="#">9</a></li>
+      <li><a href="#">11</a></li>
+    </ul>
+  </div>
+
+  <form action="/" method="post">
+  <input type="hidden" name="size" id= "size_button" value= {{size}}>
+   <button type="submit" class="btn btn-primary col-sm-4">Randomize</button>
+</form> 
+
+<br>
+<div class="container">
+    <h2 align="center" id="puzzle_title">Puzzle Visualizer: Default</h2>
+
+</div>
+<div class="container">
+<div class="row">
+<div id="loading" style="display: none;">
+    <h3>Loading.</h3>
+</div>
+<div id="boards">
+<div id="board-p" class="col col-sm-6">
+    <h3 align="center">Puzzle</h3>
     <table border="1" align="center" class="tr-font" id="tb">
-    {% for row in nums %}
+    {% for i in range(0,size) %}
     <tr>
-    {% for i in row %}
-    {% if i == 0 %}
-    <td class="square">G</td>
+    {% for j in range(0,size) %}
+    {% if nums[i][j] == 0 %}
+    <td class="square" id="g{{i*size + j}}">G</td>
     {% else %}
-    <td class="square">{{i}}</td>
+    <td class="square" id="g{{i*size + j}}">{{nums[i][j]}}</td>
     {% endif %}
     {% endfor %}
     </tr>
@@ -21,5 +50,155 @@ We are displaying the body
     </table>
   </div>
 
+<div id="board-c" class="col col-sm-6">
+    <h3 align="center">Puzzle Move Cost</h3>
+    <table border="1" align="center" class="tr-font" id="tb">
+    {% for i in range(0,size) %}
+    <tr>
+    {% for j in range(0,size) %}
+    {% if nums[i][j] == 0 %}
+    <td class="square" id="c{{i*size + j}}">G</td>
+    {% else %}
+    <td class="square" id="c{{i*size + j}}">{{nums[i][j]}}</td>
+    {% endif %}
+    {% endfor %}
+    </tr>
+    {% endfor %}
+    </table>
+  </div>
+</div>
+</div>
+
+</div>
+
+<div class="container"><h2>Solution Visualizer</h2></div>
+
+<div id="exTab2" class="container"> 
+<ul class="nav nav-tabs">
+            <li class="active">
+            <a href="#1" data-toggle="tab" value="default">Default</a></li>
+            <li><a href="#2" data-toggle="tab" value="basic">Hill Climbing - Basic</a></li>
+            <li><a href="#3" data-toggle="tab" value="restart">Hill Climbing - Random Restarts</a></li>
+            <li><a href="#4" data-toggle="tab" value="walk">Hill Climbing - Random Walk</a></li>
+            <li><a href="#5" data-toggle="tab" value="anneal">Simulated Annealing</a></li>
+            <li><a href="#6" data-toggle="tab" value="genetic">Population Based</a></li>
+        </ul>
+
+            <div class="tab-content ">
+              <div class="tab-pane active" id="1">
+          <h3>Solution 1</h3>
+                </div>
+
+                <div class="tab-pane" id="2">
+          <h3>Solution 2</h3>
+                </div>
+
+        <div class="tab-pane" id="3">
+          <h3>Solution 3</h3>
+                </div>
+
+        <div class="tab-pane" id="4">
+          <h3>Solution 4</h3>
+                </div>
+
+        <div class="tab-pane" id="5">
+          <h3>Solution 5</h3>
+                </div>
+
+        <div class="tab-pane" id="6">
+          <h3>Solution 6</h3>
+                </div>
+            </div>
+  </div>
+
+
 </body>
+
+<script>
+    var default_grid = []
+    var default_grid_cost = []
+    function saveDefault(){
+        for(i = 0; i < size*size;i++){
+            default_grid.push($('#g' + i).text())
+            default_grid_cost.push($('#c' + i).text())
+        }
+    }
+
+    var size = {{size}};
+   // Code used to set dropdown selected value
+function setAktivMenu(text) {
+   $('#size').val(text).html(function(i, html) {
+       return text + html.slice(html.indexOf(' <'));
+   });
+}
+  $('#size + .dropdown-menu').on('click', 'li>a', function() {
+    $('#size_button').val($(this).text())
+   setAktivMenu($(this).text());
+});
+
+$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+  var target = $(e.target).text() // activated tab
+  var type = $(this).attr('value')
+  $('#puzzle_title').text("Puzzle Visualizer: " + target)
+  $("#boards").hide();
+  $("#loading h3").text("Loading.")
+  $("#loading").show();
+  var active_tab = $('.tab-content .active').attr('id');
+  $('#' + active_tab + ' h3').text("loading...")
+  switch(type){
+    case "default":
+        setGrid(default_grid, default_grid_cost);
+        $("#loading").hide();
+        $("#boards").show();
+        $('#' + active_tab + ' h3').text(result.msg)
+        break;
+    default:
+        getData(type)
+    }
+})
+
+
+
+function getData(type){
+    var active_tab = $('.tab-content .active').attr('id');
+    $.ajax({
+    url: "/get_grids",
+    type: "POST",
+    data: JSON.stringify({grid: default_grid, grid_c: default_grid_cost, size: size, type: type}),
+    contentType: "application/json; charset=utf-8",
+    success: function(data) { result = JSON.parse(data); 
+        setGrid(result.grid,result.grid2)
+        $('#' + active_tab + ' h3').text(result.msg)
+        $("#loading").hide();
+        $("#boards").show();
+    },
+    error: function(xhr, textStatus, errorThrown){
+       $("#loading h3").text("Error");
+    $('#' + active_tab + ' h3').text("Error")
+    }
+});
+}
+
+function setGrid(grid, grid_c){
+    for(i = 0; i < size*size;i++){
+        if(grid[i] == 0){
+            $('#g' + i).text("G");
+        } else{
+            $('#g' + i).text(grid[i]);
+        }
+        $('#c' + i).text(grid_c[i]);
+    }
+}
+
+setInterval(function() {
+    if($('#loading h3').text() != "Error"){
+        if(($('#loading h3').text().match(/\./g) || []).length > 2){
+           $('#loading h3').text("Loading" + '.') 
+        } else{
+            $('#loading h3').text($('#loading h3').text() + '.')
+        }
+    }
+}, 1000);
+
+</script>
 <html>
