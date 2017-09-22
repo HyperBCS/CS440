@@ -1,6 +1,8 @@
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, render_template, abort, flash
 from flask import request
 from itertools import *
+from asst.controllers import solver
+import math
 import random
 import json
 import time
@@ -18,14 +20,16 @@ def make_grid_nums(n):
     return num_arr
 
 @page.route("/",methods=['GET', 'POST'])
-def showhello():
-    size = 5
+def showhello(arr = None, size = 5):
     try:
         size = int(request.form['size'])
     except Exception as e:
         pass
-    grid = make_grid_nums(size)
-    grid2 = range(0,size*size)
+    if arr == None:
+        grid = make_grid_nums(size)
+    else:
+        grid = arr
+    grid2 = solver.solve_puzzle(grid, size)
     '''Super basic function. Always shows "Hi"'''
     return render_template('/grid.html', nums=grid, size=size, grid2=grid2)
 
@@ -60,6 +64,54 @@ def doGenetic(size, grid):
     grid_cost = [random.randint(1, size-1) for x in range(size*size)]
     return grid_calc, grid_cost, "Genetic solution"
 
+def arr_to_grid(grid):
+    n = math.sqrt(len(grid))
+    arr = []
+    if not n.is_integer():
+        raise
+    n = int(n)
+    count = 0
+    for n in range(0,n):
+        tmp_arr = []
+        for m in range(0,n):
+            tmp_arr.append(grid[count])
+            count += 1
+        arr.append(tmp_arr)
+    return arr
+
+@page.route("upload_grid", methods=['POST'])
+def upgrid():
+    if 'file' not in request.files:
+        flash('No file part', 'danger')
+        return showhello()
+    file = request.files['file']
+    # if user does not select file, browser also
+    # submit a empty part without filename
+    arr = []
+    size = 0
+    if file.filename == '':
+        flash('No selected file', 'danger')
+        return showhello()
+    try:
+        for line in file.readlines():
+            tmp_arr = line.decode().split(" ")
+            for n, num in enumerate(tmp_arr):
+                tmp_arr[n] = int(num)
+            if size == 0:
+                size = len(tmp_arr)
+            if len(tmp_arr) != size:
+                flash("Invalid file", 'danger')
+                return showhello()
+            arr.append(tmp_arr)
+        if len(arr) != size:
+            flash("Invalid grid file", 'danger')
+            return showhello()
+        flash("Grid loaded", 'success')
+        return showhello(arr, size)
+    except:
+        flash("Error reading file")
+        return showhello()
+
 @page.route("get_grids",methods=['POST'])
 def getgrids():
     size = 0
@@ -76,6 +128,8 @@ def getgrids():
        print(e) 
        return "Error", 500
     try:
+        grid_o = arr_to_grid(grid_o)
+        grid_c_o = arr_to_grid(grid_c_o)
         if req_type == "basic":
             grid, grid2, msg = doBasic(size, grid_o)
         elif req_type == 'restart':

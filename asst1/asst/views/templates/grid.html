@@ -1,4 +1,16 @@
 <!doctype html>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible" role="alert" align="center">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <!-- <strong>Title</strong> --> {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
 <html>
 
 {% include "head.html" %}
@@ -19,9 +31,17 @@
 
   <form action="/" method="post">
   <input type="hidden" name="size" id= "size_button" value= {{size}}>
-   <button type="submit" class="btn btn-primary col-sm-4">Randomize</button>
+   <button type="submit" class="btn btn-primary col-sm-4" align="right">Randomize</button>
 </form> 
+    
+    <div class="col-sm-4" align="right"">
+    <form method=post enctype=multipart/form-data action="/upload_grid" >
+      <input type="file" name="file" style="float: left" />
+   <input type="submit" value="Upload" class="btn btn-primary" align="right"/>
+    </form>
+  </div>
 
+</div>
 <br>
 <div class="container">
     <h2 align="center" id="puzzle_title">Puzzle Visualizer: Default</h2>
@@ -56,10 +76,10 @@
     {% for i in range(0,size) %}
     <tr>
     {% for j in range(0,size) %}
-    {% if nums[i][j] == 0 %}
-    <td class="square" id="c{{i*size + j}}">G</td>
+    {% if grid2[i][j] == -1 %}
+    <td class="square" id="c{{i*size + j}}">X</td>
     {% else %}
-    <td class="square" id="c{{i*size + j}}">{{nums[i][j]}}</td>
+    <td class="square" id="c{{i*size + j}}">{{grid2[i][j]}}</td>
     {% endif %}
     {% endfor %}
     </tr>
