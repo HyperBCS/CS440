@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, abort, flash
 from flask import request
 from itertools import *
-from asst.controllers import solver
+from asst.controllers import solver, hill
 import math
 import random
 import json
@@ -37,8 +37,7 @@ def showhello(arr = None, size = 5):
 
 # Connect to basic hill climb in controller
 def doBasic(size, grid):
-    grid_calc = [random.randint(1, size-1) for x in range(size*size)]
-    grid_cost = [random.randint(1, size-1) for x in range(size*size)]
+    grid_calc, grid_cost = hill.doBasic(grid, size, 50)
     return grid_calc, grid_cost, "Basic solution"
 
 # Connect to restart in controller
