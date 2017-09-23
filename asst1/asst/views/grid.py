@@ -19,6 +19,7 @@ def make_grid_nums(n):
     num_arr[n-1][n-1] = 0
     return num_arr
 
+@page.route("upload_grid", methods=['GET'])
 @page.route("/",methods=['GET', 'POST'])
 def showhello(arr = None, size = 5):
     try:
@@ -29,9 +30,9 @@ def showhello(arr = None, size = 5):
         grid = make_grid_nums(size)
     else:
         grid = arr
-    grid2 = solver.solve_puzzle(grid, size)
+    grid2, value, solution = solver.solve_puzzle(grid, size)
     '''Super basic function. Always shows "Hi"'''
-    return render_template('/grid.html', nums=grid, size=size, grid2=grid2)
+    return render_template('/grid.html', nums=grid, size=size, grid2=grid2, sol=solution, value = value)
 
 
 # Connect to basic hill climb in controller
@@ -95,10 +96,13 @@ def upgrid():
     try:
         for line in file.readlines():
             tmp_arr = line.decode().split(" ")
+            if len(tmp_arr) == 1:
+                size = int(tmp_arr[0])
+                continue
+            if size == 0:
+                raise
             for n, num in enumerate(tmp_arr):
                 tmp_arr[n] = int(num)
-            if size == 0:
-                size = len(tmp_arr)
             if len(tmp_arr) != size:
                 flash("Invalid file", 'danger')
                 return showhello()
@@ -109,7 +113,7 @@ def upgrid():
         flash("Grid loaded", 'success')
         return showhello(arr, size)
     except:
-        flash("Error reading file")
+        flash("Error reading file", 'danger')
         return showhello()
 
 @page.route("get_grids",methods=['POST'])
