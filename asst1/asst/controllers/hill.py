@@ -58,7 +58,10 @@ def doAnneal(grid, size, iters, temp_init, decay):
         grid_gen = generate_grid(grid_gen, size)
         grid_s, value_gen, solution_s = solver.solve_puzzle(grid_gen, size)
         if value_gen != prev_val and value_gen > 0 and best_val > 0:
-            accept_prob = math.exp((value_gen - prev_val) / (1.0 * temp_init))
+            try:
+                accept_prob = math.exp((value_gen - prev_val) / (1.0 * temp_init))
+            except:
+                accept_prob = 1
         rand_val = random.uniform(0, 1)    
         prev_val = value_gen
         if best_val > 0 and value_gen > 0 and value_gen <= best_val:
