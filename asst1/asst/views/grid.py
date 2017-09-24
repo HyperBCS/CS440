@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, abort, flash
 from flask import request
 from itertools import *
 from asst.controllers import solver, hill
+import traceback
 import math
 import random
 import json
@@ -36,27 +37,44 @@ def showhello(arr = None, size = 5):
 
 
 # Connect to basic hill climb in controller
-def doBasic(size, grid):
-    grid_calc, grid_cost = hill.doBasic(grid, size, 50)
-    return grid_calc, grid_cost, "Basic solution"
+def doBasic(size, grid, iters):
+    start = time.time()
+    grid_calc, grid_cost, value, solution = hill.doBasic(grid, size, iters)
+    end = time.time()
+    if value > 0:
+     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s"
+    return grid_calc, grid_cost, solution
 
 # Connect to restart in controller
-def doRestart(size, grid):
-    grid_calc = [random.randint(1, size-1) for x in range(size*size)]
-    grid_cost = [random.randint(1, size-1) for x in range(size*size)]
-    return grid_calc, grid_cost, "Restart solution"
+def doRestart(size, grid, iters, iters_per):
+    iters_per = int(iters_per)
+    start = time.time()
+    grid_calc, grid_cost, value, solution = hill.doRestart(grid, size, iters, iters_per)
+    end = time.time()
+    if value > 0:
+     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s"
+    return grid_calc, grid_cost, solution
 
 # Connect to the random walk controller
-def doWalk(size, grid):
-    grid_calc = [random.randint(1, size-1) for x in range(size*size)]
-    grid_cost = [random.randint(1, size-1) for x in range(size*size)]
-    return grid_calc, grid_cost, "Walk solution"
+def doWalk(size, grid, iters, prob):
+    prob = float(prob)
+    start = time.time()
+    grid_calc, grid_cost, value, solution = hill.doBasic(grid, size, iters, prob)
+    end = time.time()
+    if value > 0:
+     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s"
+    return grid_calc, grid_cost, solution
 
 # Connect to the simulated anneal controller
-def doAnneal(size, grid):
-    grid_calc = [random.randint(1, size-1) for x in range(size*size)]
-    grid_cost = [random.randint(1, size-1) for x in range(size*size)]
-    return grid_calc, grid_cost, "Anneal solution"
+def doAnneal(size, grid, iters, init_t, decay):
+    init_t = int(init_t)
+    decay = float(decay)
+    start = time.time()
+    grid_calc, grid_cost, value, solution = hill.doAnneal(grid, size, iters, init_t, decay)
+    end = time.time()
+    if value > 0:
+     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s"
+    return grid_calc, grid_cost, solution
 
 # Connect to the genetic population method controller
 def doGenetic(size, grid):
@@ -69,11 +87,11 @@ def arr_to_grid(grid):
     arr = []
     if not n.is_integer():
         raise
-    n = int(n)
+    size = int(n)
     count = 0
-    for n in range(0,n):
+    for n in range(0,size):
         tmp_arr = []
-        for m in range(0,n):
+        for m in range(0,size):
             tmp_arr.append(grid[count])
             count += 1
         arr.append(tmp_arr)
@@ -125,6 +143,9 @@ def getgrids():
         data = request.get_json()
         req_type = data['type']
         size = data['size']
+        iters = int(data['iters'])
+        var2 = data['var2']
+        var3 = data['var3']
         grid_o = data['grid']
         grid_c_o = data['grid_c']
     except Exception as e:
@@ -134,19 +155,20 @@ def getgrids():
         grid_o = arr_to_grid(grid_o)
         grid_c_o = arr_to_grid(grid_c_o)
         if req_type == "basic":
-            grid, grid2, msg = doBasic(size, grid_o)
+            grid, grid2, msg = doBasic(size, grid_o, iters)
         elif req_type == 'restart':
-            grid, grid2, msg = doRestart(size, grid_o)
+            grid, grid2, msg = doRestart(size, grid_o, iters, var2)
         elif req_type == 'walk':
-            grid, grid2, msg = doWalk(size, grid_o)
+            grid, grid2, msg = doWalk(size, grid_o, iters, var2)
         elif req_type == 'anneal':
-            grid, grid2, msg = doAnneal(size, grid_o)
+            grid, grid2, msg = doAnneal(size, grid_o, iters, var2, var3)
         elif req_type == 'genetic':
             grid, grid2, msg = doGenetic(size, grid_o)
         else:
             return "Bad request", 400
     except Exception as e:
         print(e)
+        print(traceback.print_exc())
         return "Internal Server Error", 500
 
     '''Super basic function. Always shows "Hi"'''

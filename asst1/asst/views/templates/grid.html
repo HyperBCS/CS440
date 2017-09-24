@@ -112,23 +112,149 @@
                 </div>
 
                 <div class="tab-pane" id="2">
-          <h3>Solution 2</h3>
+          <h3>Puzzle Solution</h3>
+          Iterations
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter2" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+          <input type="submit" value="Re-Solve" id = "basicButton" class="btn btn-primary" align="right"/>
+        </div>
+          <br>
+
+          <div id=sol2>
+          </div>
+
                 </div>
 
         <div class="tab-pane" id="3">
           <h3>Solution 3</h3>
+          Restarts
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter3" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          Iterations Per Restart
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter3val" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+          <input type="submit" value="Re-Solve" id = "restartButton" class="btn btn-primary" align="right"/>
+        </div>
+
+
+
+                    <div id=sol3>
+          </div>
+
                 </div>
 
         <div class="tab-pane" id="4">
           <h3>Solution 4</h3>
+          Restarts
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter4" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="form-group">
+              <label for="usr">Downhill Acceptance Rate</label>
+              <input type="text" class="form-control" id = "iter4val" value=0.5 >
+            </div>
+        </div>
+        <input type="submit" value="Re-Solve" id = "randomButton" class="btn btn-primary" align="right"/>
+      </div>
+
+
+
+
+          <div id=sol4>
+          </div>
                 </div>
 
         <div class="tab-pane" id="5">
           <h3>Solution 5</h3>
+          Iterations
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter5" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          Initial Temperature
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter5val" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="form-group">
+              <label for="usr">Decay Rate</label>
+              <input type="text" class="form-control" id = "iter5dec" value=0.5 >
+            </div>
+        </div>
+        <input type="submit" value="Re-Solve" id = "annealButton" class="btn btn-primary" align="right"/>
+      </div>
+
+          <div id=sol5>
+          </div>
                 </div>
 
         <div class="tab-pane" id="6">
           <h3>Solution 6</h3>
+          <div id=sol6>
+          </div>
                 </div>
             </div>
   </div>
@@ -139,10 +265,24 @@
 <script>
     var default_grid = []
     var default_grid_cost = []
+    var type = "default"
+
     function saveDefault(){
         for(i = 0; i < size*size;i++){
-            default_grid.push($('#g' + i).text())
-            default_grid_cost.push($('#c' + i).text())
+            grid_val = $('#g' + i).text()
+            grid_cost_val = $('#c' + i).text()
+            if(grid_val == 'G'){
+              grid_val = 0
+            } else{
+              grid_val = parseInt(grid_val)
+            }
+            if(grid_cost_val == "X"){
+              grid_cost_val = -1
+            } else{
+              grid_cost_val = parseInt(grid_cost_val)
+            }
+            default_grid.push(grid_val)
+            default_grid_cost.push(grid_cost_val)
         }
     }
 
@@ -160,37 +300,87 @@ function setAktivMenu(text) {
 
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
   var target = $(e.target).text() // activated tab
-  var type = $(this).attr('value')
+  type = $(this).attr('value')
   $('#puzzle_title').text("Puzzle Visualizer: " + target)
+  calcGrids()
+})
+
+
+
+  $( "#basicButton" ).click(function() {
+    var iters = $('#iter2').val()
+    if(iters > 0){
+      calcGrids(iters)
+    } else{
+      alert("Please choose iterations above 1")
+    }
+  });
+
+  $( "#restartButton" ).click(function() {
+    var iters = $('#iter3').val()
+    var iters2 = $('#iter3val').val()
+    if(iters > 0 && iters2 > 0){
+      calcGrids(iters, iters2)
+    } else{
+      alert("Please choose iterations above 1")
+    }
+  });
+
+  $( "#randomButton" ).click(function() {
+    var iters = $('#iter4').val()
+    var iters2 = $('#iter4val').val()
+    if(iters > 0 && iters2 >= 0 && iters2 <= 1){
+      calcGrids(iters, iters2)
+    } else{
+      alert("Please choose iterations above 1 and probability between (0,1)")
+    }
+  });
+
+
+  $( "#annealButton" ).click(function() {
+    var iters = $('#iter5').val()
+    var init = $('#iter5val').val()
+    var decay = $('#iter5dec').val()
+    if(iters > 0 && init> 0 && decay>= 0 && decay <= 1){
+      calcGrids(iters, init, decay)
+    } else{
+      alert("Please choose iterations, initial Temperature above 1 and decay between (0,1)")
+    }
+  });
+
+function calcGrids(iters=0, var2=0, var3=0){
   $("#boards").hide();
   $("#loading h3").text("Loading.")
   $("#loading").show();
   var active_tab = $('.tab-content .active').attr('id');
-  $('#' + active_tab + ' h3').text("loading...")
+  var iters = $('#iter' + active_tab).val()
+  var var2 = $('#iter' + active_tab + 'val').val()
+  var var3 = $('#iter' + active_tab + 'dec').val()
   switch(type){
     case "default":
         setGrid(default_grid, default_grid_cost);
         $("#loading").hide();
         $("#boards").show();
-        $('#' + active_tab + ' h3').text(result.msg)
         break;
     default:
-        getData(type)
+        $('#' + active_tab + ' h3').text("loading...")
+        getData(type, iters, var2, var3)
     }
-})
+}
 
 
-
-function getData(type){
+function getData(type, iters=0, var2=0, var3=0){
     var active_tab = $('.tab-content .active').attr('id');
     $.ajax({
     url: "/get_grids",
     type: "POST",
-    data: JSON.stringify({grid: default_grid, grid_c: default_grid_cost, size: size, type: type}),
+    data: JSON.stringify({grid: default_grid, grid_c: default_grid_cost, size: size, type: type, iters: iters, var2: var2, var3: var3}),
     contentType: "application/json; charset=utf-8",
     success: function(data) { result = JSON.parse(data); 
         setGrid(result.grid,result.grid2)
-        $('#' + active_tab + ' h3').text(result.msg)
+        var sol = $('#sol' + active_tab).text(result.msg)
+        sol.html(sol.html().replace(/\n/g,'<br/>'));
+        $('#' + active_tab + ' h3').text("Puzzle Solution")
         $("#loading").hide();
         $("#boards").show();
     },
@@ -208,7 +398,12 @@ function setGrid(grid, grid_c){
         } else{
             $('#g' + i).text(grid[i]);
         }
-        $('#c' + i).text(grid_c[i]);
+
+        if(grid_c[i] == -1){
+            $('#c' + i).text("X");
+        } else{
+            $('#c' + i).text(grid_c[i]);
+        }
     }
 }
 
@@ -221,6 +416,39 @@ setInterval(function() {
         }
     }
 }, 1000);
+
+
+
+$(function() {
+    var action;
+    $(".number-spinner button").mousedown(function () {
+        btn = $(this);
+        input = btn.closest('.number-spinner').find('input');
+        btn.closest('.number-spinner').find('button').prop("disabled", false);
+
+      if (btn.attr('data-dir') == 'up') {
+            action = setInterval(function(){
+                if ( input.attr('max') == undefined || parseInt(input.val()) < parseInt(input.attr('max')) ) {
+                    input.val(parseInt(input.val())+1);
+                }else{
+                    btn.prop("disabled", true);
+                    clearInterval(action);
+                }
+            }, 50);
+      } else {
+            action = setInterval(function(){
+                if ( input.attr('min') == undefined || parseInt(input.val()) > parseInt(input.attr('min')) ) {
+                    input.val(parseInt(input.val())-1);
+                }else{
+                    btn.prop("disabled", true);
+                    clearInterval(action);
+                }
+            }, 50);
+      }
+    }).mouseup(function(){
+        clearInterval(action);
+    });
+});
 
 </script>
 <html>
