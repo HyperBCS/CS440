@@ -19,7 +19,8 @@ def doBasic(grid, size, iters, prob = 0):
         grid_gen = generate_grid(grid_gen, size)
         grid_s, value_gen, solution_s = solver.solve_puzzle(grid_gen, size)
         if best_val > 0 and value_gen > 0 and value_gen <= best_val:
-            best_found = True
+            if not value_gen == best_val:
+                best_found = True
             best_val = value_gen
             best_grid = grid_gen
             best_grid_s = grid_s
@@ -114,6 +115,7 @@ def generate_rand_grid(n):
 def doRestart(grid, size, iters, iters_per):
     grid2, value, solution = solver.solve_puzzle(grid, size)
     best_val = value
+    new_best = False
     best_grid = deepcopy(grid)
     grid_gen = deepcopy(grid)
     best_grid_s = deepcopy(grid2)
@@ -123,6 +125,7 @@ def doRestart(grid, size, iters, iters_per):
         grid_gen = generate_rand_grid(size)
         grid_g, grid_s, value_gen, solution_s = doBasic(grid_gen, size, iters_per)
         if best_val > 0 and value_gen > 0 and value_gen <= best_val:
+            new_best = True
             best_val = value_gen
             best_grid = grid_gen
             best_grid_s = grid_s
@@ -138,5 +141,6 @@ def doRestart(grid, size, iters, iters_per):
     best_grid_s = np.array(best_grid_s).tolist()
     if len(best_grid_s) <= size:
         best_grid_s = [item for sublist in best_grid_s for item in sublist]
-        
+    if not new_best:
+        best_sol = "Puzzle Value: " + str(best_val) + "\n" + best_sol
     return best_grid, best_grid_s, best_val, best_sol
