@@ -16,16 +16,12 @@ def doBasic(grid, size, iters, prob = 0):
     for i in range(iters):
         rand_val = random.uniform(0, 1)
         prev_grid = deepcopy(grid_gen)
-        grid_gen = generate_grid(grid_gen, size)
-        grid_s, value_gen, solution_s = solver.solve_puzzle(grid_gen, size)
-        if best_val > 0 and value_gen > 0 and value_gen <= best_val:
+        grid_gen, grid_s, value_gen, solution_s = generate_grid(grid_gen, size)
+        # print(value_gen)
+        # print("BEST: " + str(best_val) + "\nGEN: " + str(value_gen) + "\nRAND: " + str(rand_val) + "\n------------")
+        if value_gen >= best_val:
             if not value_gen == best_val:
                 best_found = True
-            best_val = value_gen
-            best_grid = grid_gen
-            best_grid_s = grid_s
-            best_sol = solution_s
-        elif best_val < 0 and value_gen >= best_val and not best_found:
             best_val = value_gen
             best_grid = grid_gen
             best_grid_s = grid_s
@@ -56,22 +52,16 @@ def doAnneal(grid, size, iters, temp_init, decay):
     accept_prob = 1
     for i in range(iters):
         prev_grid = deepcopy(grid_gen)
-        grid_gen = generate_grid(grid_gen, size)
-        grid_s, value_gen, solution_s = solver.solve_puzzle(grid_gen, size)
-        if value_gen != prev_val and value_gen > 0 and best_val > 0:
-            try:
-                accept_prob = math.exp((value_gen - prev_val) / (1.0 * temp_init))
-            except:
-                accept_prob = 1
+        grid_gen, grid_s, value_gen, solution_s = generate_grid(grid_gen, size)
+        try:
+            accept_prob = math.exp((value_gen - prev_val) / (1.0 * temp_init))
+        except:
+            accept_prob = 1
         rand_val = random.uniform(0, 1)    
+        # print("Prev Val: " + str(prev_val) + "\nGen Val: " + str(value_gen) + "\nTemp: " + str(temp_init) + "\nAccept prob: " + str(accept_prob)  + "\nRandom Value: " + str(rand_val) + "\n---------------")
         prev_val = value_gen
-        if best_val > 0 and value_gen > 0 and value_gen <= best_val:
+        if value_gen >= best_val:
             best_found = True
-            best_val = value_gen
-            best_grid = grid_gen
-            best_grid_s = grid_s
-            best_sol = solution_s
-        elif best_val < 0 and value_gen >= best_val and not best_found:
             best_val = value_gen
             best_grid = grid_gen
             best_grid_s = grid_s
@@ -93,13 +83,18 @@ def doAnneal(grid, size, iters, temp_init, decay):
     return best_grid, best_grid_s, best_val, best_sol
 
 def generate_grid(grid, size):
-    while True:
+    orig_grid = deepcopy(grid)
+    while True: 
         rand_coord = [random.randint(0, size-1), random.randint(0, size-1)]
         rand_mag = random.randint(1, size-1)
-        if not (rand_coord == [size-1,size-1]):
+        if not (rand_coord == [size-1,size-1]) and rand_mag != grid[rand_coord[0]][rand_coord[1]]:
             grid_gen = grid[:]
             grid_gen[rand_coord[0]][rand_coord[1]] = rand_mag
-            return grid_gen
+            grid_s, value_gen, solution_s = solver.solve_puzzle(grid_gen, size)
+            if value_gen > 0:
+                return grid_gen, grid_s, value_gen, solution_s
+            else:
+                grid = deepcopy(orig_grid)
 
 def generate_rand_grid(n):
     num_arr = []
@@ -124,13 +119,8 @@ def doRestart(grid, size, iters, iters_per):
     for i in range(iters):
         grid_gen = generate_rand_grid(size)
         grid_g, grid_s, value_gen, solution_s = doBasic(grid_gen, size, iters_per)
-        if best_val > 0 and value_gen > 0 and value_gen <= best_val:
+        if value_gen >= best_val:
             new_best = True
-            best_val = value_gen
-            best_grid = grid_gen
-            best_grid_s = grid_s
-            best_sol = solution_s
-        elif best_val < 0 and value_gen >= best_val:
             best_val = value_gen
             best_grid = grid_gen
             best_grid_s = grid_s

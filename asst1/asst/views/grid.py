@@ -28,7 +28,11 @@ def showhello(arr = None, size = 5):
     except Exception as e:
         pass
     if arr == None:
-        grid = make_grid_nums(size)
+        while True:
+            grid = make_grid_nums(size)
+            g, value, s = solver.solve_puzzle(grid, size)
+            if value > 0:
+                break
     else:
         grid = arr
     grid2, value, solution = solver.solve_puzzle(grid, size)
