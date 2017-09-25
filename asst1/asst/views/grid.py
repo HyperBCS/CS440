@@ -28,11 +28,7 @@ def showhello(arr = None, size = 5):
     except Exception as e:
         pass
     if arr == None:
-        while True:
             grid = make_grid_nums(size)
-            g, value, s = solver.solve_puzzle(grid, size)
-            if value > 0:
-                break
     else:
         grid = arr
     grid2, value, solution = solver.solve_puzzle(grid, size)
@@ -43,30 +39,30 @@ def showhello(arr = None, size = 5):
 # Connect to basic hill climb in controller
 def doBasic(size, grid, iters):
     start = time.time()
-    grid_calc, grid_cost, value, solution = hill.doBasic(grid, size, iters)
+    grid_calc, grid_cost, value, solution, iters = hill.doBasic(grid, size, iters)
     end = time.time()
     if value > 0:
-     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s"
+     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s" + "\nIterations: " + str(iters)
     return grid_calc, grid_cost, solution
 
 # Connect to restart in controller
 def doRestart(size, grid, iters, iters_per):
     iters_per = int(iters_per)
     start = time.time()
-    grid_calc, grid_cost, value, solution = hill.doRestart(grid, size, iters, iters_per)
+    grid_calc, grid_cost, value, solution, iters = hill.doRestart(grid, size, iters, iters_per)
     end = time.time()
     if value > 0:
-     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s"
+     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s" + "\nIterations: " + str(iters)
     return grid_calc, grid_cost, solution
 
 # Connect to the random walk controller
 def doWalk(size, grid, iters, prob):
     prob = float(prob)
     start = time.time()
-    grid_calc, grid_cost, value, solution = hill.doBasic(grid, size, iters, prob)
+    grid_calc, grid_cost, value, solution, iters = hill.doBasic(grid, size, iters, prob)
     end = time.time()
     if value > 0:
-     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s"
+     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s" + "\nIterations: " + str(iters)
     return grid_calc, grid_cost, solution
 
 # Connect to the simulated anneal controller
@@ -74,10 +70,10 @@ def doAnneal(size, grid, iters, init_t, decay):
     init_t = int(init_t)
     decay = float(decay)
     start = time.time()
-    grid_calc, grid_cost, value, solution = hill.doAnneal(grid, size, iters, init_t, decay)
+    grid_calc, grid_cost, value, solution, iters = hill.doAnneal(grid, size, iters, init_t, decay)
     end = time.time()
     if value > 0:
-     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s"
+     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s" + "\nIterations: " + str(iters)
     return grid_calc, grid_cost, solution
 
 # Connect to the genetic population method controller

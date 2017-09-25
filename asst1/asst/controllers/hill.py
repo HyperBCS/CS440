@@ -17,7 +17,6 @@ def doBasic(grid, size, iters, prob = 0):
         rand_val = random.uniform(0, 1)
         prev_grid = deepcopy(grid_gen)
         grid_gen, grid_s, value_gen, solution_s = generate_grid(grid_gen, size)
-        # print(value_gen)
         # print("BEST: " + str(best_val) + "\nGEN: " + str(value_gen) + "\nRAND: " + str(rand_val) + "\n------------")
         if value_gen >= best_val:
             if not value_gen == best_val:
@@ -38,7 +37,7 @@ def doBasic(grid, size, iters, prob = 0):
         best_sol = "Puzzle Value: " + str(best_val) + "\n" + best_sol
         # best_sol = "Puzzle Value: " + str(best_val) + "\n" + best_sol + "\nIterations: " + str(i) + "\nCompute Time: " + "{0:.2f}".format(end - start) + "s"
         
-    return best_grid, best_grid_s, best_val, best_sol
+    return best_grid, best_grid_s, best_val, best_sol, i + 1
 
 def doAnneal(grid, size, iters, temp_init, decay):
     grid2, value, solution = solver.solve_puzzle(grid, size)
@@ -80,7 +79,7 @@ def doAnneal(grid, size, iters, temp_init, decay):
         best_sol = "Puzzle Value: " + str(best_val) + "\n" + best_sol
         # best_sol = "Puzzle Value: " + str(best_val) + "\n" + best_sol + "\nIterations: " + str(i) + "\nCompute Time: " + "{0:.2f}".format(end - start) + "s"
         
-    return best_grid, best_grid_s, best_val, best_sol
+    return best_grid, best_grid_s, best_val, best_sol, i + 1
 
 def generate_grid(grid, size):
     orig_grid = deepcopy(grid)
@@ -97,14 +96,17 @@ def generate_grid(grid, size):
                 grid = deepcopy(orig_grid)
 
 def generate_rand_grid(n):
-    num_arr = []
-    for i in range(0,n):
-        row = []
-        for j in range(0,n):
-            row.append(random.randint(1,n-1))
-        num_arr.append(row)
-    num_arr[n-1][n-1] = 0
-    return num_arr
+    while True:
+        num_arr = []
+        for i in range(0,n):
+            row = []
+            for j in range(0,n):
+                row.append(random.randint(1,n-1))
+            num_arr.append(row)
+        num_arr[n-1][n-1] = 0
+        grid2, value, solution = solver.solve_puzzle(num_arr, n)
+        if value > 0:
+            return num_arr
 
 
 def doRestart(grid, size, iters, iters_per):
@@ -116,9 +118,11 @@ def doRestart(grid, size, iters, iters_per):
     best_grid_s = deepcopy(grid2)
     best_sol = solution
     start = time.time()
+    it = 0
     for i in range(iters):
         grid_gen = generate_rand_grid(size)
-        grid_g, grid_s, value_gen, solution_s = doBasic(grid_gen, size, iters_per)
+        grid_g, grid_s, value_gen, solution_s, iters = doBasic(grid_gen, size, iters_per)
+        it += iters
         if value_gen >= best_val:
             new_best = True
             best_val = value_gen
@@ -133,4 +137,4 @@ def doRestart(grid, size, iters, iters_per):
         best_grid_s = [item for sublist in best_grid_s for item in sublist]
     if not new_best:
         best_sol = "Puzzle Value: " + str(best_val) + "\n" + best_sol
-    return best_grid, best_grid_s, best_val, best_sol
+    return best_grid, best_grid_s, best_val, best_sol, it
