@@ -10,6 +10,7 @@ import time
 
 page = Blueprint('main', __name__, template_folder='templates')
 
+# create a random grid of size n
 def make_grid_nums(n):
     num_arr = []
     for i in range(0,n):
@@ -32,7 +33,6 @@ def showhello(arr = None, size = 5):
     else:
         grid = arr
     grid2, value, solution = solver.solve_puzzle(grid, size)
-    '''Super basic function. Always shows "Hi"'''
     return render_template('/grid.html', nums=grid, size=size, grid2=grid2, sol=solution, value = value)
 
 
@@ -140,6 +140,7 @@ def upgrid():
         flash("Error reading file", 'danger')
         return showhello()
 
+# Post method the web page will call when we need to find new grid values
 @page.route("get_grids",methods=['POST'])
 def getgrids():
     size = 0
@@ -160,6 +161,7 @@ def getgrids():
        print(e) 
        return "Error", 500
     try:
+        # Choose the function to go to based on the request type
         grid_o = arr_to_grid(grid_o)
         grid_c_o = arr_to_grid(grid_c_o)
         if req_type == "basic":
@@ -179,6 +181,5 @@ def getgrids():
         print(traceback.print_exc())
         return "Internal Server Error", 500
 
-    '''Super basic function. Always shows "Hi"'''
     response = {"grid": grid, "grid2": grid2, "msg": msg}
     return json.dumps(response)

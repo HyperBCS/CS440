@@ -1,5 +1,5 @@
 from itertools import *
-import solver, hill2
+import solver, hill2, genetic2
 import numpy as np
 import traceback
 import math
@@ -20,12 +20,13 @@ def make_grid_nums(n):
 def testBasic():
     new_arr = {}
     size = 11
-    iters = 2000
-    temp_init = 900
-    decay = 0.95
-    for n in range(50):
+    iters = 500
+    initial_pop = 30
+    num_child = 4
+    mutation_rate = 0.1
+    for n in range(10):
         grid = make_grid_nums(size)
-        grid_calc, grid_cost, value, solution, iters2, iter_vals = hill2.doAnneal(grid, size, iters, temp_init ,decay)
+        grid_calc, grid_cost, value, solution, iter_vals = genetic2.doGenetic(grid, size, iters, initial_pop, num_child, mutation_rate)
         for u,num in enumerate(iter_vals):
             if u not in new_arr:
                 new_arr[u] = [num]

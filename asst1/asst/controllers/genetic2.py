@@ -3,26 +3,24 @@ import numpy as np
 import time
 from copy import deepcopy
 from operator import itemgetter
-from asst.controllers import solver
+import solver
 
-# genetic algorithm method
+
 def doGenetic(grid, size, iters, initial_pop, num_child, mutation_rate):
     current_pop = []
     if initial_pop % 2 == 1:
         initial_pop += 1
-    # we create the initial population here
     for i in range(initial_pop):
         grid_gen, value_gen = generate_rand_grid(size)
         current_pop.append([grid_gen, value_gen])
     current_pop.sort(key=itemgetter(1), reverse=True)
+    iter_vals = []
     for j in range(iters):
         children = []
         for k in range(0, len(current_pop)-1, 2):
             for ch in range(num_child):
-                # Create a copy of each parent to use for each pair of children
                 curr_parent1 = deepcopy(current_pop[k][0])
                 curr_parent2 = deepcopy(current_pop[k+1][0])
-                # choose random segment in parent to swap and make the new children
                 while True:
                     rand_x = random.sample(range(0, (size)), 2)
                     rand_y = random.sample(range(0, (size)), 2)
@@ -43,7 +41,6 @@ def doGenetic(grid, size, iters, initial_pop, num_child, mutation_rate):
                         break
                 tmp_chromo1 = []
                 tmp_chromo2 = []
-                # create the chromosome strings here
                 for num in range(rand_x_start,rand_x_end):
                     for num2 in range(rand_y_start,rand_y_end):
                         tmp_chromo1.append(curr_parent1[num][num2])
@@ -51,10 +48,8 @@ def doGenetic(grid, size, iters, initial_pop, num_child, mutation_rate):
                 count = 0
                 rand_val1 = random.uniform(0, 1)
                 rand_val2 = random.uniform(0, 1)
-                # swap the chromosomes here
                 for num in range(rand_x_start,rand_x_end):
                     for num2 in range(rand_y_start,rand_y_end):
-                        # a random chance of mutation can occur when switching genes
                         if rand_val1 < mutation_rate:
                             tmp_chromo1[count] = random.randint(1, (size)-1)
                         if rand_val2 < mutation_rate:
@@ -71,6 +66,7 @@ def doGenetic(grid, size, iters, initial_pop, num_child, mutation_rate):
             grid2, value, solution = solver.solve_puzzle(l, size)
             current_pop.append([l, value])
         current_pop.sort(key=itemgetter(1), reverse=True)
+        iter_vals.append(current_pop[0][1])
         # for i in current_pop:
         #     print(i[1])
         # print("--------------------")
@@ -85,9 +81,8 @@ def doGenetic(grid, size, iters, initial_pop, num_child, mutation_rate):
         best_sol = "Puzzle Value: " + str(best_val) + "\n" + best_sol
         # best_sol = "Puzzle Value: " + str(best_val) + "\n" + best_sol + "\nIterations: " + str(i) + "\nCompute Time: " + "{0:.2f}".format(end - start) + "s"
         
-    return best_grid, best_grid_s, best_val, best_sol
+    return best_grid, best_grid_s, best_val, best_sol, iter_vals
 
-# generates the random population
 def generate_rand_grid(n):
     while True:
         num_arr = []

@@ -4,7 +4,7 @@ import time
 from copy import deepcopy
 from asst.controllers import solver, hill
 
-
+# Basic hill climbing method
 def doBasic(grid, size, iters, prob = 0):
     grid2, value, solution = solver.solve_puzzle(grid, size)
     best_val = value
@@ -13,11 +13,14 @@ def doBasic(grid, size, iters, prob = 0):
     grid_gen = deepcopy(grid)
     best_grid_s = deepcopy(grid2)
     best_sol = solution
+    # Iterate for the number we specify
     for i in range(iters):
         rand_val = random.uniform(0, 1)
         prev_grid = deepcopy(grid_gen)
         grid_gen, grid_s, value_gen, solution_s = generate_grid(grid_gen, size)
         # print("BEST: " + str(best_val) + "\nGEN: " + str(value_gen) + "\nRAND: " + str(rand_val) + "\n------------")
+        # If the value we generate is better than the best we make a new global best. Also if the value is the same we do not
+        # consider a new max found, but still set the current puzzle as best.
         if value_gen >= best_val:
             if not value_gen == best_val:
                 best_found = True
@@ -25,6 +28,7 @@ def doBasic(grid, size, iters, prob = 0):
             best_grid = grid_gen
             best_grid_s = grid_s
             best_sol = solution_s
+        # For random walk we determine if we should accept the new puzzle or not to go downhill
         elif best_found and rand_val > prob:
             grid_gen = prev_grid
     best_grid = np.array(best_grid).tolist()
@@ -37,6 +41,8 @@ def doBasic(grid, size, iters, prob = 0):
         
     return best_grid, best_grid_s, best_val, best_sol, i + 1
 
+
+# Performs the annealing method
 def doAnneal(grid, size, iters, temp_init, decay):
     grid2, value, solution = solver.solve_puzzle(grid, size)
     best_val = value
@@ -51,6 +57,7 @@ def doAnneal(grid, size, iters, temp_init, decay):
         prev_grid = deepcopy(grid_gen)
         grid_gen, grid_s, value_gen, solution_s = generate_grid(grid_gen, size)
         try:
+            # Calculate the acceptance probability
             accept_prob = math.exp((value_gen - prev_val) / (1.0 * temp_init))
         except:
             accept_prob = 1
