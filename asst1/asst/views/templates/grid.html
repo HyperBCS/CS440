@@ -253,6 +253,57 @@
 
         <div class="tab-pane" id="6">
           <h3>Solution 6</h3>
+          Iterations
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter6" + class="form-control text-center" value="10" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          Initial Population
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter6pop" + class="form-control text-center" value="10" min="2">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          Children per Generation
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter6val" + class="form-control text-center" value="2" min="2">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="form-group">
+              <label for="usr">Mutation Rate</label>
+              <input type="text" class="form-control" id = "iter6dec" value=0.001 >
+            </div>
+        </div>
+        <input type="submit" value="Re-Solve" id = "geneticButton" class="btn btn-primary" align="right"/>
+      </div>
           <div id=sol6>
           </div>
                 </div>
@@ -348,7 +399,19 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     }
   });
 
-function calcGrids(iters=0, var2=0, var3=0){
+  $( "#geneticButton" ).click(function() {
+    var iters = $('#iter6').val()
+    var init = $('#iter6val').val()
+    var init_pop = $('#iter6pop').val()
+    var decay = $('#iter6dec').val()
+    if(iters > 0 && init> 1 && init_pop > 1 && decay>= 0 && decay <= 1){
+      calcGrids(iters, init, decay, init_pop)
+    } else{
+      alert("Please choose iterations above 1, children above 1, init pop above 1 and mutation rate between (0,1)")
+    }
+  });
+
+function calcGrids(iters=0, var2=0, var3=0, var4=0){
   $("#boards").hide();
   $("#loading h3").text("Loading.")
   $("#loading").show();
@@ -356,6 +419,7 @@ function calcGrids(iters=0, var2=0, var3=0){
   var iters = $('#iter' + active_tab).val()
   var var2 = $('#iter' + active_tab + 'val').val()
   var var3 = $('#iter' + active_tab + 'dec').val()
+  var var4 = $('#iter' + active_tab + 'pop').val()
   switch(type){
     case "default":
         setGrid(default_grid, default_grid_cost);
@@ -364,17 +428,17 @@ function calcGrids(iters=0, var2=0, var3=0){
         break;
     default:
         $('#' + active_tab + ' h3').text("loading...")
-        getData(type, iters, var2, var3)
+        getData(type, iters, var2, var3, var4)
     }
 }
 
 
-function getData(type, iters=0, var2=0, var3=0){
+function getData(type, iters=0, var2=0, var3=0, var4=0){
     var active_tab = $('.tab-content .active').attr('id');
     $.ajax({
     url: "/get_grids",
     type: "POST",
-    data: JSON.stringify({grid: default_grid, grid_c: default_grid_cost, size: size, type: type, iters: iters, var2: var2, var3: var3}),
+    data: JSON.stringify({grid: default_grid, grid_c: default_grid_cost, size: size, type: type, iters: iters, var2: var2, var3: var3, var4: var4}),
     contentType: "application/json; charset=utf-8",
     success: function(data) { result = JSON.parse(data); 
         setGrid(result.grid,result.grid2)

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, abort, flash
 from flask import request
 from itertools import *
-from asst.controllers import solver, hill
+from asst.controllers import solver, hill, genetic
 import traceback
 import math
 import random
@@ -77,10 +77,17 @@ def doAnneal(size, grid, iters, init_t, decay):
     return grid_calc, grid_cost, solution
 
 # Connect to the genetic population method controller
-def doGenetic(size, grid):
-    grid_calc = [random.randint(1, size-1) for x in range(size*size)]
-    grid_cost = [random.randint(1, size-1) for x in range(size*size)]
-    return grid_calc, grid_cost, "Genetic solution"
+def doGenetic(size, grid, iters, child, mut_rate, init_pop):
+    child = int(child)
+    iters = int(iters)
+    init_pop = int(init_pop)
+    mut_rate = float(mut_rate)
+    start = time.time()
+    grid_calc, grid_cost, value, solution = genetic.doGenetic(grid, size, iters, init_pop, child, mut_rate)
+    end = time.time()
+    if value > 0:
+     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s" 
+    return grid_calc, grid_cost, solution
 
 def arr_to_grid(grid):
     n = math.sqrt(len(grid))
@@ -146,6 +153,7 @@ def getgrids():
         iters = int(data['iters'])
         var2 = data['var2']
         var3 = data['var3']
+        var4 = data['var4']
         grid_o = data['grid']
         grid_c_o = data['grid_c']
     except Exception as e:
@@ -163,7 +171,7 @@ def getgrids():
         elif req_type == 'anneal':
             grid, grid2, msg = doAnneal(size, grid_o, iters, var2, var3)
         elif req_type == 'genetic':
-            grid, grid2, msg = doGenetic(size, grid_o)
+            grid, grid2, msg = doGenetic(size, grid_o, iters, var2, var3, var4)
         else:
             return "Bad request", 400
     except Exception as e:

@@ -1,7 +1,7 @@
 import random, math
 import numpy as np
 import time
-from copy import deepcopy
+from copy import copy, deepcopy
 import solver
 
 
@@ -9,9 +9,9 @@ def doBasic(grid, size, iters, prob = 0):
     grid2, value, solution = solver.solve_puzzle(grid, size)
     best_val = value
     best_found = False
-    best_grid = deepcopy(grid)
-    grid_gen = deepcopy(grid)
-    best_grid_s = deepcopy(grid2)
+    best_grid = list(grid)
+    grid_gen = list(grid)
+    best_grid_s = list(grid2)
     best_sol = solution
     iter_vals = []
     for i in range(iters):
@@ -20,14 +20,13 @@ def doBasic(grid, size, iters, prob = 0):
         grid_gen, grid_s, value_gen, solution_s = generate_grid(grid_gen, size)
         # print("BEST: " + str(best_val) + "\nGEN: " + str(value_gen) + "\nRAND: " + str(rand_val) + "\n------------")
         if value_gen >= best_val:
-            best_found = True
+            if not value_gen == best_val:
+                best_found = True
             best_val = value_gen
             best_grid = grid_gen
             best_grid_s = grid_s
             best_sol = solution_s
         elif best_found and rand_val > prob:
-            break
-        else:
             grid_gen = prev_grid
         iter_vals.append(best_val)
     best_grid = np.array(best_grid).tolist()
@@ -45,9 +44,9 @@ def doAnneal(grid, size, iters, temp_init, decay):
     best_val = value
     prev_val = best_val
     best_found = False
-    best_grid = deepcopy(grid)
-    grid_gen = deepcopy(grid)
-    best_grid_s = deepcopy(grid2)
+    best_grid = list(grid)
+    grid_gen = list(grid)
+    best_grid_s = list(grid2)
     best_sol = solution
     accept_prob = 1
     iter_vals = []
@@ -68,8 +67,6 @@ def doAnneal(grid, size, iters, temp_init, decay):
             best_grid_s = grid_s
             best_sol = solution_s
         elif best_found and rand_val > accept_prob:
-            break
-        else:
             grid_gen = prev_grid
         temp_init *= decay
         iter_vals.append(best_val)
@@ -85,7 +82,7 @@ def doAnneal(grid, size, iters, temp_init, decay):
     return best_grid, best_grid_s, best_val, best_sol, i + 1, iter_vals
 
 def generate_grid(grid, size):
-    orig_grid = deepcopy(grid)
+    orig_grid = list(grid)
     while True: 
         rand_coord = [random.randint(0, size-1), random.randint(0, size-1)]
         rand_mag = random.randint(1, size-1)
@@ -93,7 +90,10 @@ def generate_grid(grid, size):
             grid_gen = grid[:]
             grid_gen[rand_coord[0]][rand_coord[1]] = rand_mag
             grid_s, value_gen, solution_s = solver.solve_puzzle(grid_gen, size)
-            return grid_gen, grid_s, value_gen, solution_s
+            if value_gen > 0:
+                return grid_gen, grid_s, value_gen, solution_s
+            else:
+                grid = list(orig_grid)
 
 def generate_rand_grid(n):
     while True:
@@ -113,18 +113,18 @@ def doRestart(grid, size, iters, iters_per):
     grid2, value, solution = solver.solve_puzzle(grid, size)
     best_val = value
     new_best = False
-    best_grid = deepcopy(grid)
-    grid_gen = deepcopy(grid)
-    best_grid_s = deepcopy(grid2)
+    best_grid = list(grid)
+    grid_gen = list(grid)
+    best_grid_s = list(grid2)
     best_sol = solution
     start = time.time()
     it = 0
     iter_vals = []
     for i in range(iters):
         grid_gen = generate_rand_grid(size)
-        grid_g, grid_s, value_gen, solution_s, iters, iter_vals2 = doBasic(grid_gen, size, iters_per)
+        grid_g, grid_s, value_gen, solution_s, iters, iter_vals = doBasic(grid_gen, size, iters_per)
+        it += iters
         if value_gen >= best_val:
-            it += iters
             new_best = True
             best_val = value_gen
             best_grid = grid_gen
@@ -139,5 +139,4 @@ def doRestart(grid, size, iters, iters_per):
         best_grid_s = [item for sublist in best_grid_s for item in sublist]
     if not new_best:
         best_sol = "Puzzle Value: " + str(best_val) + "\n" + best_sol
-    # print(new_arr)
     return best_grid, best_grid_s, best_val, best_sol, it, iter_vals

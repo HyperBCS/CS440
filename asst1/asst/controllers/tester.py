@@ -19,44 +19,45 @@ def make_grid_nums(n):
 
 def testBasic():
     new_arr = {}
-    size = 9
-    iters = 75
+    size = 11
+    iters = 2000
     temp_init = 900
-    for uio in range(40):
+    decay = 0.95
+    for n in range(50):
         grid = make_grid_nums(size)
-        for n in range(60):
-            grid_calc, grid_cost, value, solution, iters2, iter_vals = hill2.doBasic(grid, size, iters)
-            for u,num in enumerate(iter_vals):
-                if u not in new_arr:
-                    new_arr[u] = [num]
-                else:
-                    new_arr[u].append(num)  
+        grid_calc, grid_cost, value, solution, iters2, iter_vals = hill2.doAnneal(grid, size, iters, temp_init ,decay)
+        for u,num in enumerate(iter_vals):
+            if u not in new_arr:
+                new_arr[u] = [num]
+            else:
+                new_arr[u].append(num)  
 
     avg_arr = []
     # print(new_arr)
     for m in new_arr:
         avg_arr.append(np.sum(new_arr[m]) / (1.0 * len(new_arr[m])))
-    print(avg_arr)
+    return avg_arr
 
 def testRestart():
     new_arr = {}
     size = 11
-    restarts = 75
-    iters_per = 150
-    for uio in range(3):
+    restarts = 10
+    iters_per = 200
+    for n in range(50):
         grid = make_grid_nums(size)
-        for n in range(25):
-            grid_calc, grid_cost, value, solution, iters2, iter_vals = hill2.doRestart(grid, size, restarts, iters_per)
-            for u,num in enumerate(iter_vals):
-                if u not in new_arr:
-                    new_arr[u] = [num]
-                else:
-                    new_arr[u].append(num)  
+        grid_calc, grid_cost, value, solution, iters2, iter_vals = hill2.doRestart(grid, size, restarts, iters_per)
+        for u,num in enumerate(iter_vals):
+            if u not in new_arr:
+                new_arr[u] = [num]
+            else:
+                new_arr[u].append(num)  
 
     avg_arr = []
     # print(new_arr)
     for m in new_arr:
         avg_arr.append(np.sum(new_arr[m]) / (1.0 * len(new_arr[m])))
-    print(avg_arr)
-testBasic()
-# testRestart()
+    return avg_arr
+g = testBasic()
+# g = testRestart()
+for n in g:
+    print(str(n))

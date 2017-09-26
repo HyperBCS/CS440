@@ -26,8 +26,6 @@ def doBasic(grid, size, iters, prob = 0):
             best_grid_s = grid_s
             best_sol = solution_s
         elif best_found and rand_val > prob:
-            break
-        else:
             grid_gen = prev_grid
     best_grid = np.array(best_grid).tolist()
     best_grid = [item for sublist in best_grid for item in sublist]
@@ -66,8 +64,6 @@ def doAnneal(grid, size, iters, temp_init, decay):
             best_grid_s = grid_s
             best_sol = solution_s
         elif best_found and rand_val > accept_prob:
-            break
-        else:
             grid_gen = prev_grid
         temp_init *= decay
         temp_init = max(.01, temp_init)

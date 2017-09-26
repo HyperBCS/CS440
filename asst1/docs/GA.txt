@@ -1,0 +1,15 @@
+Genetic Algorithm for Puzzle Solver
+
+	In this genetic algorithm we use an aggressive form of survival of the fittest, where a grid is created and then evaluated based upon only two factors. These two factors are what we call the movement score of the puzzle. The puzzle is in essence an nxn grid with only one row and one column that are 100% necessary to creating a solvable puzzle. The bottom-most row, and the right-most column. If neither of these contain a cell that has a direct link to the puzzle goal then the goal is entirely unreachable. 
+	
+	The approach we used was to create a random row/column of values ranging from 1 – n where n is the dimensional length of the grid. The values within these row, columns are given random values in decreasing increments. For example, the value at the far end of the row/column would need a value of n-1 to successfully reach the goal, for the next cell over, its n-2 and so on. As such, we decided that creating a ‘sink’ along these paths would be the optimal way to push the search agent towards the goal. The range of randomly generated values decreases as the distance to the goal from the cell along the path is shortened, as such when the agent arrives towards the end of the row it has a (1, ½, 1/3, …, 1/n) chance of being in a cell that has a direct path to the goal from it. Even if the cell does not contain a direct path, it is some combination of jumps along the row away from the goal. 
+
+	This algorithm aggressively approaches survival by generating a new row/column and then comparing it to the existing one, if the score of the row/column is better than the generated one, it replaces it. The score is determined by measuring how many of the values along the row/column are less than or equal to their distance from the goal, this number is then compared to the same value found within the existing board. These values are compared and whichever is better ‘survives’. There is no mutation or crossover, this simply equates to two apex predators meeting in the jungle and fighting for survival. 
+
+	Although this approach is naive, it is important to note that by creating a ‘downward slope’ towards the goal along the two paths of ingress to the goal we are in fact probabilistically lowering the number of moves it should take. 
+
+
+
+***Does not need to be included
+
+Ways to improve algorithm, creating a ‘dipping’ effect towards the corner of the board, so anything below (n/2, n/2) on the board would would be optimized to push the agent towards the corner tiles where they are more likely to find a direct path to the goal. 
