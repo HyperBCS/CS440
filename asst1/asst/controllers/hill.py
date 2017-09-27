@@ -70,7 +70,7 @@ def doAnneal(grid, size, iters, temp_init, decay):
             best_grid = grid_gen
             best_grid_s = grid_s
             best_sol = solution_s
-        elif best_found and rand_val > accept_prob:
+        elif rand_val > accept_prob:
             grid_gen = prev_grid
         temp_init *= decay
         temp_init = max(.01, temp_init)
