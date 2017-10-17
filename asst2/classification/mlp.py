@@ -21,13 +21,8 @@ class MLPClassifier:
     self.type = "mlp"
     self.max_iterations = 20000
 
-  # def sig(self,x,deriv=False):
-  #   """Compute softmax values for each sets of scores in x."""
-  #   e_x = np.exp(x - np.max(x))
-  #   return e_x / e_x.sum()
-
   def sig(self,x):
-    """Compute softmax values for each sets of scores in x."""
+    """Compute softmax values for each sets of scores in x. Using instead of sigmoid because better classifier"""
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum()
 
