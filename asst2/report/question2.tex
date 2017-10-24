@@ -1,0 +1,144 @@
+\section*{Question 2: University of Excellence}
+\subsection*{a)} 
+The provided tree is classified correctly.
+
+\subsection*{b)}
+GPA: $\geq$ 3.9, 3.2 < GPA < 3.9 , $\leq$ 3.2\\
+Research: Yes, No\\
+Rank: 1, 2, 3\\
+
+\underline{Level 1}
+
+\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}| }
+ \hline
+ \multicolumn{3}{|c|}{GPA} \\
+ \hline
+ & Positive & Negative\\
+ \hline
+ $\geq 3.9$  & 3 & 0\\
+ 3.2 < GPA < 3.9 &   3 & 2\\
+ $\leq 3.2$ & 0 & 4\\
+ \hline
+\end{tabular}
+
+Remainder = $\frac{3}{12}$ B(1) + $\frac{5}{12}$ B($\frac{3}{5}$)  + $\frac{1}{3}$ B(0)= 0.4046\\
+
+\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}| }
+ \hline
+ \multicolumn{3}{|c|}{Research} \\
+ \hline
+ & Positive & Negative\\
+ \hline
+ Yes & 3 & 2\\
+ No &   3 & 4\\
+ \hline
+\end{tabular}
+
+Remainder = $\frac{5}{12}$ B($\frac{3}{5}$) + $\frac{7}{12}$ B($\frac{3}{7}$) = 0.9792\\
+
+\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}| }
+ \hline
+ \multicolumn{3}{|c|}{Rank} \\
+ \hline
+ & Positive & Negative\\
+ \hline
+ Rank 1 & 3 & 2\\
+ Rank 2 &   2 & 1\\
+ Rank 3 &   1 & 3\\
+ \hline
+\end{tabular}
+
+Remainder = $\frac{5}{12}$ B($\frac{3}{5}$) + $\frac{1}{4}$ B($\frac{2}{3}$)  + $\frac{1}{3}$ B($\frac{1}{4}$)= 0.9046\\
+
+\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}| }
+ \hline
+ \multicolumn{3}{|c|}{Reccomendation} \\
+ \hline
+ & Positive & Negative\\
+ \hline
+ Good & 5 & 3\\
+ Normal &   1 & 3\\
+ \hline
+\end{tabular}
+
+Remainder = $\frac{8}{12}$ B($\frac{5}{8}$) + $\frac{4}{12}$ B($\frac{1}{4}$) = 0.9067\\
+
+GPA has the lowest remainder so we choose that option for the first level.
+
+\underline{Level 2}
+
+\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}| }
+ \hline
+ \multicolumn{3}{|c|}{Research} \\
+ \hline
+ & Positive & Negative\\
+ \hline
+ Yes & 2 & 0\\
+ No &   1 & 2\\
+ \hline
+\end{tabular}
+
+Remainder = $\frac{2}{5}$ B(1) + $\frac{3}{5}$ B($\frac{1}{3}$) = 0.5510\\
+
+\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}| }
+ \hline
+ \multicolumn{3}{|c|}{Rank} \\
+ \hline
+ & Positive & Negative\\
+ \hline
+ Rank 1 & 1 & 1\\
+ Rank 2 &   1 & 0\\
+ Rank 3 &   1 & 1\\
+ \hline
+\end{tabular}
+
+Remainder = $\frac{2}{5}$ B(1) +  B(1) + $\frac{2}{5}$ B($\frac{1}{2}$) = 0.80\\
+
+\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}| }
+ \hline
+ \multicolumn{3}{|c|}{Reccomendation} \\
+ \hline
+ & Positive & Negative\\
+ \hline
+ Good & 3 & 2\\
+ Normal &   0 & 0\\
+ \hline
+\end{tabular}
+
+Remainder = B($\frac{3}{5}$) +  B(1) + B(1) = 0.9710\\
+
+Research has the lowest remainder so we choose that option for the second level.
+
+\underline{Level 3}
+
+\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}| }
+ \hline
+ \multicolumn{3}{|c|}{Rank} \\
+ \hline
+ & Positive & Negative\\
+ \hline
+ Rank 1 & 0 & 1\\
+ Rank 2 &   1 & 0\\
+ Rank 3 &   0 & 1\\
+ \hline
+\end{tabular}
+
+Remainder = B(1) +  B(1) + B(1) = 0\\
+
+\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}| }
+ \hline
+ \multicolumn{3}{|c|}{Reccomendation} \\
+ \hline
+ & Positive & Negative\\
+ \hline
+ Good & 1 & 2\\
+ Normal &   0 & 0\\
+ \hline
+\end{tabular}
+
+Remainder =B(1) + B($\frac{1}{3}$) = 0.9183\\
+
+University ranking has the lowest remainder so we choose that option for the last level.
+
+\subsection*{c)}
+Yes they classify the same way because it's the same tree. It is not a coincidence. At each state the best attribute was chosen. The only time you can have different trees from the same data is at any given 2 attributes have the same remainder and you can choose.
