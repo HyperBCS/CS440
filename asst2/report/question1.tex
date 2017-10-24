@@ -1,5 +1,5 @@
 \section*{Question 1: Optical Character Recognition}
-\subsection{Partial Training Results}
+\subsection*{3. Partial Training Results}
 
 Results when using 20\% to 100\% of the training data, when validating and testing on 1000 images.
 
@@ -46,7 +46,7 @@ Results when using 20\% to 100\% of the training data, when validating and testi
 \end{axis}
 \end{tikzpicture}
 
-\subsection{Partial Testing Results}
+\subsection*{4. Partial Testing Results}
 
 Results when using 20\% to 100\% of the testing data, when training with 5000 images.
 
@@ -93,5 +93,6 @@ Results when using 20\% to 100\% of the testing data, when training with 5000 im
 \end{axis}
 \end{tikzpicture}
 
-\subsection{Qualitative Evaluation}
-Hello
+\subsection*{5. Qualitative Evaluation}
+One can see that the one layer perceptron does the worst. This makes sense since we know that a perceptron is equivalent to a non-linear line. Therefore, a single layer of perceptrons cannot make complex function. The SVM seems to do better than the MLP. SVM can often do better than MLP for lower dimensions such as this problem. Also using a premade library with default values may be tuned to these specific types of problems. I think if I play around a little more with the number of hidden nodes, and learning rate for MLP I can achieve better yields. For SVM using non default values may give me better results. Classical learning systems like neural networks suffer from their theoretical weakness, e.g. back-propagation usually converges only to locally optimal solutions. Here SVMs can provide a significant improvement.\\
+For the training data size we see almost a linear decrease in error across all three learning methods. This shows that the more data we use to train the better our models become. Originally I had the learning rate as 0.5 for MLP and I was getting around 70-80\% test data results. After I changed it to 0.05 I started getting 85-90\%. Changing the number of hidden nodes and iterations did not have much effect on the error. As for SVM I thought the default values of gamma and C worked best.

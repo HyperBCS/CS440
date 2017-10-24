@@ -10,11 +10,18 @@
 
 %% Useful packages
 \usepackage{amsmath}
+\usepackage{float}
 \usepackage{graphicx}
+\usepackage{listings}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.14}
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\graphicspath{ {./aipics/} }
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
 
 \title{CS 440: Introduction to Artificial Intelligence}
 \author{Brandon Smith \& Nicholas Grieco}
@@ -25,9 +32,9 @@
 
 
 \include{question1}
-\include{question2}
-\include{question3}
-\include{question4}
-\include{question5}
+\input{question2}
+\input{question3}
+\input{question4}
+\input{question5}
 
 \end{document}
