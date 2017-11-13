@@ -1,0 +1,14 @@
+.square {
+    width:70px;
+    height:70px;
+}
+
+#tb td 
+{
+    text-align:center; 
+    vertical-align:middle;
+}
+
+.tr-font{
+  font-size: 24px;
+}

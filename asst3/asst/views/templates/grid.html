@@ -1,0 +1,518 @@
+<!doctype html>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible" role="alert" align="center">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <!-- <strong>Title</strong> --> {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<html>
+
+{% include "head.html" %}
+<body onload="saveDefault()">
+<br>
+<div class="container">
+    <div class="row">
+     <div class="dropdown col-sm-4">
+    <button class="btn btn-primary dropdown-toggle" id="size" type="button" data-toggle="dropdown">Grid Size
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+      <li><a href="#">5</a></li>
+      <li><a href="#">7</a></li>
+      <li><a href="#">9</a></li>
+      <li><a href="#">11</a></li>
+    </ul>
+  </div>
+
+  <form action="/" method="post">
+  <input type="hidden" name="size" id= "size_button" value= {{size}}>
+   <button type="submit" class="btn btn-primary col-sm-4" align="right">Randomize</button>
+</form> 
+    
+    <div class="col-sm-4" align="right"">
+    <form method=post enctype=multipart/form-data action="/upload_grid" >
+      <input type="file" name="file" style="float: left" />
+   <input type="submit" value="Upload" class="btn btn-primary" align="right"/>
+    </form>
+  </div>
+
+</div>
+<br>
+<div class="container">
+    <h2 align="center" id="puzzle_title">Puzzle Visualizer: Default</h2>
+
+</div>
+<div class="container">
+<div class="row">
+<div id="loading" style="display: none;">
+    <h3>Loading.</h3>
+</div>
+<div id="boards">
+<div id="board-p" class="col col-sm-6">
+    <h3 align="center">Puzzle</h3>
+    <table border="1" align="center" class="tr-font" id="tb">
+    {% for i in range(0,size) %}
+    <tr>
+    {% for j in range(0,size) %}
+    {% if nums[i][j] == 0 %}
+    <td class="square" id="g{{i*size + j}}">G</td>
+    {% else %}
+    <td class="square" id="g{{i*size + j}}">{{nums[i][j]}}</td>
+    {% endif %}
+    {% endfor %}
+    </tr>
+    {% endfor %}
+    </table>
+  </div>
+
+<div id="board-c" class="col col-sm-6">
+    <h3 align="center">Puzzle Move Cost</h3>
+    <table border="1" align="center" class="tr-font" id="tb">
+    {% for i in range(0,size) %}
+    <tr>
+    {% for j in range(0,size) %}
+    {% if grid2[i][j] == -1 %}
+    <td class="square" id="c{{i*size + j}}">X</td>
+    {% else %}
+    <td class="square" id="c{{i*size + j}}">{{grid2[i][j]}}</td>
+    {% endif %}
+    {% endfor %}
+    </tr>
+    {% endfor %}
+    </table>
+  </div>
+</div>
+</div>
+
+</div>
+
+<div class="container"><h2>Solution Visualizer</h2></div>
+
+<div id="exTab2" class="container"> 
+<ul class="nav nav-tabs">
+            <li class="active">
+            <a href="#1" data-toggle="tab" value="default">Default</a></li>
+            <li><a href="#2" data-toggle="tab" value="basic">Hill Climbing - Basic</a></li>
+            <li><a href="#3" data-toggle="tab" value="restart">Hill Climbing - Random Restarts</a></li>
+            <li><a href="#4" data-toggle="tab" value="walk">Hill Climbing - Random Walk</a></li>
+            <li><a href="#5" data-toggle="tab" value="anneal">Simulated Annealing</a></li>
+            <li><a href="#6" data-toggle="tab" value="genetic">Population Based</a></li>
+        </ul>
+
+            <div class="tab-content ">
+              <div class="tab-pane active" id="1">
+          <h3>Puzzle Solution</h3>
+          <p> Solution value: {{value}}
+          <p>{{sol}}
+                </div>
+
+                <div class="tab-pane" id="2">
+          <h3>Puzzle Solution</h3>
+          Iterations
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter2" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+          <input type="submit" value="Re-Solve" id = "basicButton" class="btn btn-primary" align="right"/>
+        </div>
+          <br>
+
+          <div id=sol2>
+          </div>
+
+                </div>
+
+        <div class="tab-pane" id="3">
+          <h3>Solution 3</h3>
+          Restarts
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter3" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          Iterations Per Restart
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter3val" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+          <input type="submit" value="Re-Solve" id = "restartButton" class="btn btn-primary" align="right"/>
+        </div>
+
+
+
+                    <div id=sol3>
+          </div>
+
+                </div>
+
+        <div class="tab-pane" id="4">
+          <h3>Solution 4</h3>
+          Restarts
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter4" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="form-group">
+              <label for="usr">Downhill Acceptance Rate</label>
+              <input type="text" class="form-control" id = "iter4val" value=0.5 >
+            </div>
+        </div>
+        <input type="submit" value="Re-Solve" id = "randomButton" class="btn btn-primary" align="right"/>
+      </div>
+
+
+
+
+          <div id=sol4>
+          </div>
+                </div>
+
+        <div class="tab-pane" id="5">
+          <h3>Solution 5</h3>
+          Iterations
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter5" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          Initial Temperature
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter5val" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="form-group">
+              <label for="usr">Decay Rate</label>
+              <input type="text" class="form-control" id = "iter5dec" value=0.950 >
+            </div>
+        </div>
+        <input type="submit" value="Re-Solve" id = "annealButton" class="btn btn-primary" align="right"/>
+      </div>
+
+          <div id=sol5>
+          </div>
+                </div>
+
+        <div class="tab-pane" id="6">
+          <h3>Solution 6</h3>
+          Iterations
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter6" + class="form-control text-center" value="10" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          Initial Population
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter6pop" + class="form-control text-center" value="10" min="2">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          Children(pair) per Generation
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter6val" + class="form-control text-center" value="2" min="2">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="form-group">
+              <label for="usr">Mutation Rate</label>
+              <input type="text" class="form-control" id = "iter6dec" value=0.001 >
+            </div>
+        </div>
+        <input type="submit" value="Re-Solve" id = "geneticButton" class="btn btn-primary" align="right"/>
+      </div>
+          <div id=sol6>
+          </div>
+                </div>
+            </div>
+  </div>
+
+
+</body>
+
+<script>
+    var default_grid = []
+    var default_grid_cost = []
+    var type = "default"
+
+    function saveDefault(){
+        for(i = 0; i < size*size;i++){
+            grid_val = $('#g' + i).text()
+            grid_cost_val = $('#c' + i).text()
+            if(grid_val == 'G'){
+              grid_val = 0
+            } else{
+              grid_val = parseInt(grid_val)
+            }
+            if(grid_cost_val == "X"){
+              grid_cost_val = -1
+            } else{
+              grid_cost_val = parseInt(grid_cost_val)
+            }
+            default_grid.push(grid_val)
+            default_grid_cost.push(grid_cost_val)
+        }
+    }
+
+    var size = {{size}};
+   // Code used to set dropdown selected value
+function setAktivMenu(text) {
+   $('#size').val(text).html(function(i, html) {
+       return text + html.slice(html.indexOf(' <'));
+   });
+}
+  $('#size + .dropdown-menu').on('click', 'li>a', function() {
+    $('#size_button').val($(this).text())
+   setAktivMenu($(this).text());
+});
+
+$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+  var target = $(e.target).text() // activated tab
+  type = $(this).attr('value')
+  $('#puzzle_title').text("Puzzle Visualizer: " + target)
+  calcGrids()
+})
+
+
+
+  $( "#basicButton" ).click(function() {
+    var iters = $('#iter2').val()
+    if(iters > 0){
+      calcGrids(iters)
+    } else{
+      alert("Please choose iterations above 1")
+    }
+  });
+
+  $( "#restartButton" ).click(function() {
+    var iters = $('#iter3').val()
+    var iters2 = $('#iter3val').val()
+    if(iters > 0 && iters2 > 0){
+      calcGrids(iters, iters2)
+    } else{
+      alert("Please choose iterations above 1")
+    }
+  });
+
+  $( "#randomButton" ).click(function() {
+    var iters = $('#iter4').val()
+    var iters2 = $('#iter4val').val()
+    if(iters > 0 && iters2 >= 0 && iters2 <= 1){
+      calcGrids(iters, iters2)
+    } else{
+      alert("Please choose iterations above 1 and probability between (0,1)")
+    }
+  });
+
+
+  $( "#annealButton" ).click(function() {
+    var iters = $('#iter5').val()
+    var init = $('#iter5val').val()
+    var decay = $('#iter5dec').val()
+    if(iters > 0 && init> 0 && decay>= 0 && decay <= 1){
+      calcGrids(iters, init, decay)
+    } else{
+      alert("Please choose iterations, initial Temperature above 1 and decay between (0,1)")
+    }
+  });
+
+  $( "#geneticButton" ).click(function() {
+    var iters = $('#iter6').val()
+    var init = $('#iter6val').val()
+    var init_pop = $('#iter6pop').val()
+    var decay = $('#iter6dec').val()
+    if(iters > 0 && init> 1 && init_pop > 1 && decay>= 0 && decay <= 1){
+      calcGrids(iters, init, decay, init_pop)
+    } else{
+      alert("Please choose iterations above 1, children above 1, init pop above 1 and mutation rate between (0,1)")
+    }
+  });
+
+function calcGrids(iters=0, var2=0, var3=0, var4=0){
+  $("#boards").hide();
+  $("#loading h3").text("Loading.")
+  $("#loading").show();
+  var active_tab = $('.tab-content .active').attr('id');
+  var iters = $('#iter' + active_tab).val()
+  var var2 = $('#iter' + active_tab + 'val').val()
+  var var3 = $('#iter' + active_tab + 'dec').val()
+  var var4 = $('#iter' + active_tab + 'pop').val()
+  switch(type){
+    case "default":
+        setGrid(default_grid, default_grid_cost);
+        $("#loading").hide();
+        $("#boards").show();
+        break;
+    default:
+        $('#' + active_tab + ' h3').text("loading...")
+        getData(type, iters, var2, var3, var4)
+    }
+}
+
+
+function getData(type, iters=0, var2=0, var3=0, var4=0){
+    var active_tab = $('.tab-content .active').attr('id');
+    $.ajax({
+    url: "/get_grids",
+    type: "POST",
+    data: JSON.stringify({grid: default_grid, grid_c: default_grid_cost, size: size, type: type, iters: iters, var2: var2, var3: var3, var4: var4}),
+    contentType: "application/json; charset=utf-8",
+    success: function(data) { result = JSON.parse(data); 
+        setGrid(result.grid,result.grid2)
+        var sol = $('#sol' + active_tab).text(result.msg)
+        sol.html(sol.html().replace(/\n/g,'<br/>'));
+        $('#' + active_tab + ' h3').text("Puzzle Solution")
+        $("#loading").hide();
+        $("#boards").show();
+    },
+    error: function(xhr, textStatus, errorThrown){
+       $("#loading h3").text("Error");
+    $('#' + active_tab + ' h3').text("Error")
+    }
+});
+}
+
+function setGrid(grid, grid_c){
+    for(i = 0; i < size*size;i++){
+        if(grid[i] == 0){
+            $('#g' + i).text("G");
+        } else{
+            $('#g' + i).text(grid[i]);
+        }
+
+        if(grid_c[i] == -1){
+            $('#c' + i).text("X");
+        } else{
+            $('#c' + i).text(grid_c[i]);
+        }
+    }
+}
+
+setInterval(function() {
+    if($('#loading h3').text() != "Error"){
+        if(($('#loading h3').text().match(/\./g) || []).length > 2){
+           $('#loading h3').text("Loading" + '.') 
+        } else{
+            $('#loading h3').text($('#loading h3').text() + '.')
+        }
+    }
+}, 1000);
+
+
+
+$(function() {
+    var action;
+    $(".number-spinner button").mousedown(function () {
+        btn = $(this);
+        input = btn.closest('.number-spinner').find('input');
+        btn.closest('.number-spinner').find('button').prop("disabled", false);
+
+      if (btn.attr('data-dir') == 'up') {
+            action = setInterval(function(){
+                if ( input.attr('max') == undefined || parseInt(input.val()) < parseInt(input.attr('max')) ) {
+                    input.val(parseInt(input.val())+1);
+                }else{
+                    btn.prop("disabled", true);
+                    clearInterval(action);
+                }
+            }, 50);
+      } else {
+            action = setInterval(function(){
+                if ( input.attr('min') == undefined || parseInt(input.val()) > parseInt(input.attr('min')) ) {
+                    input.val(parseInt(input.val())-1);
+                }else{
+                    btn.prop("disabled", true);
+                    clearInterval(action);
+                }
+            }, 50);
+      }
+    }).mouseup(function(){
+        clearInterval(action);
+    });
+});
+
+</script>
+<html>
