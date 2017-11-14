@@ -238,22 +238,30 @@ function loadGrid(gridName){
 });
 }
 
-var init_grid = JSON.parse(he.decode('{{ grid }}'))
+var init_grid = JSON.parse(he.decode('{{ init_data }}'))
 
 function loadInit(){
-  setGrid(init_grid.grid)
+  var grid = init_grid.grid
+  var start = init_grid.start
+  var end = init_grid.end
+  setGrid(grid, start, end)
 }
 
-function setGrid(grid){
+function setGrid(grid, start, end){
+    var start = start[0] * cols + start[1]
+    var end = end[0] * cols + end[1]
+    console.log(start)
+    console.log(end)
     for (i = 0;i < rows;i++){
       for(j = 0;j < cols;j++){
-        var rect = stage.findOne('#' + (i*cols + j).toString())
+        var curr = i*cols + j
+        var rect = stage.findOne('#' + (curr).toString())
         switch(grid[i][j]) {
           case 0:
             color = 'black'
             break
           case 2:
-            color = 'brown'
+            color = 'yellow'
             break
           case 'a':
             color = 'blue'
@@ -263,6 +271,11 @@ function setGrid(grid){
             break
           default:
             color = 'white'
+        }
+        if(curr == start){
+          color = 'green'
+        } else if(curr == end){
+          color = 'red'
         }
         rect.setFill(color)
       }

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, abort, flash
 from flask import request
 from itertools import *
-from asst.controllers import solver, hill, genetic
+from asst.controllers import a_star
 import numpy as np
 from copy import deepcopy
 import traceback
@@ -18,22 +18,22 @@ def add_highway(num_arr):
     corner = random.randint(0, 3)
     # top wall
     if corner == 0:
-        bounary_start = [0, random.randint(0, COLS-1)] 
+        bounary_start = [0, random.randint(1, COLS-2)] 
         mov_x = 1
         mov_y = 0
     # bottom wall
     elif corner == 1:
-        bounary_start = [ROWS - 1, random.randint(0, COLS-1)]  
+        bounary_start = [ROWS - 1, random.randint(1, COLS-2)]  
         mov_x = -1
         mov_y = 0
     # left wall
     elif corner == 2:
-        bounary_start = [random.randint(0, COLS-1), 0]  
+        bounary_start = [random.randint(1, ROWS-2), 0]  
         mov_x = 0
         mov_y = -1
     # right wall
     elif corner == 3:
-        bounary_start = [random.randint(0, COLS-1), COLS - 1]  
+        bounary_start = [random.randint(1, ROWS-2), COLS - 1]  
         mov_x = 0
         mov_y = -1
     x_c = bounary_start[0]
@@ -61,12 +61,31 @@ def add_highway(num_arr):
         x_c = x_c + mov_x
         y_c  = y_c + mov_y
 
+def make_start_end(num_arr):
+    while True:
+        start_end = random.sample(range(0, 4), 2)
+        corner_coords = []
+        # top wall
+        corner_coords.append([random.randint(0, 20), random.randint(COLS-21, COLS-1)])
+        # bottom wall
+        corner_coords.append([random.randint(ROWS-21, ROWS-1), random.randint(COLS-21, COLS-1)])
+        # left wall
+        corner_coords.append([random.randint(1, ROWS-1), random.randint(0, 20)])
+        # right wall
+        corner_coords.append([random.randint(1, ROWS-1), random.randint(COLS-21, COLS-1)])
+        if num_arr[corner_coords[start_end[0]][0]][corner_coords[start_end[0]][1]] != 0 and num_arr[corner_coords[start_end[1]][0]][corner_coords[start_end[1]][1]] != 0:
+            distance =  math.hypot(corner_coords[start_end[1]][1] - corner_coords[start_end[0]][1], corner_coords[start_end[1]][0] - corner_coords[start_end[0]][0])
+            if distance >= 100:
+                break
+    return corner_coords[start_end[0]], corner_coords[start_end[1]]
+
+
 # create a random grid of size n
 def make_grid_nums():
     terrain = [0, 1, 2, 'a', 'b']
     num_arr = np.full((ROWS, COLS), 1).tolist()
     # Doing hard to traverse
-    for i in range(0, 4):
+    for i in range(0, 8):
         coord = [random.randint(0, ROWS-1), random.randint(0, COLS-1)]
         start_x = max(coord[0] - 15, 0)
         start_y = max(coord[1] - 15, 0)
@@ -90,7 +109,10 @@ def make_grid_nums():
         if num_arr[coord[0]][coord[1]] != 'a' and num_arr[coord[0]][coord[1]] != 'b':
             num_arr[coord[0]][coord[1]] = 0
             i = i + 1
-    return num_arr
+    start, end = make_start_end(num_arr)
+    text = a_star.solve(num_arr, start, end)
+    print(text)
+    return num_arr, start, end
 
 @page.route("get_grid",methods=['POST'])
 def get_grid(arr = None, size = 5):
@@ -98,8 +120,8 @@ def get_grid(arr = None, size = 5):
         data = request.get_json()
     except Exception as e:
         return "Error", 500
-    grid = make_grid_nums()
-    response = {"grid": grid}
+    grid, start, end = make_grid_nums()
+    response = {"grid": grid, "start": start, "end": end}
     return json.dumps(response)
 
 @page.route("upload_grid", methods=['GET'])
@@ -110,10 +132,10 @@ def showhello(arr = None, size = 5):
     except Exception as e:
         pass
     if arr == None:
-            grid = make_grid_nums()
+            grid, start, end = make_grid_nums()
     else:
         grid = arr
-    return render_template('/grid.html', grid = json.dumps({"grid": grid}))
+    return render_template('/grid.html', init_data = json.dumps({"grid": grid, "start": start, "end": end}))
 
 
 @page.route("upload_grid", methods=['POST'])
