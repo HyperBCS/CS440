@@ -9,6 +9,11 @@
     vertical-align:middle;
 }
 
+td.clicked {
+    background-color:yellow;
+    font-weight:bold; color:red;
+}
+
 .tr-font{
   font-size: 24px;
 }

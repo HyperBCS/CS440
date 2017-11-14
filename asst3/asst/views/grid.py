@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, abort, flash
 from flask import request
 from itertools import *
 from asst.controllers import solver, hill, genetic
+import numpy as np
+from copy import deepcopy
 import traceback
 import math
 import random
@@ -9,17 +11,96 @@ import json
 import time
 
 page = Blueprint('main', __name__, template_folder='templates')
+ROWS = 120
+COLS = 160
+
+def add_highway(num_arr):          
+    corner = random.randint(0, 3)
+    # top wall
+    if corner == 0:
+        bounary_start = [0, random.randint(0, COLS-1)] 
+        mov_x = 1
+        mov_y = 0
+    # bottom wall
+    elif corner == 1:
+        bounary_start = [ROWS - 1, random.randint(0, COLS-1)]  
+        mov_x = -1
+        mov_y = 0
+    # left wall
+    elif corner == 2:
+        bounary_start = [random.randint(0, COLS-1), 0]  
+        mov_x = 0
+        mov_y = -1
+    # right wall
+    elif corner == 3:
+        bounary_start = [random.randint(0, COLS-1), COLS - 1]  
+        mov_x = 0
+        mov_y = -1
+    x_c = bounary_start[0]
+    y_c = bounary_start[1]
+    for x in range(0,5):
+        if x_c + 20 * mov_x >= ROWS or x_c + 20 * mov_x < 0 or y_c + 20 * mov_y >= COLS or y_c + 20 * mov_y < 0:
+            return -1
+        for a in range(0,20):
+            if num_arr[x_c][y_c] == 'a' or num_arr[x_c][y_c] == 'b':
+                return -1
+            if num_arr[x_c][y_c] == 1:
+                num_arr[x_c][y_c] = 'a'
+            elif num_arr[x_c][y_c] == 2:
+                num_arr[x_c][y_c] = 'b'
+            if a < 19:
+                x_c = x_c + mov_x
+                y_c  = y_c + mov_y
+        if random.random() < 0.4:
+            if abs(mov_x) == 1:
+                mov_y = 1 if bool(random.getrandbits(1)) else -1
+                mov_x = 0
+            elif abs(mov_y) == 1:
+                mov_x = 1 if bool(random.getrandbits(1)) else -1
+                mov_y = 0
+        x_c = x_c + mov_x
+        y_c  = y_c + mov_y
 
 # create a random grid of size n
-def make_grid_nums(n):
-    num_arr = []
-    for i in range(0,n):
-        row = []
-        for j in range(0,n):
-            row.append(random.randint(1,n-1))
-        num_arr.append(row)
-    num_arr[n-1][n-1] = 0
+def make_grid_nums():
+    terrain = [0, 1, 2, 'a', 'b']
+    num_arr = np.full((ROWS, COLS), 1).tolist()
+    # Doing hard to traverse
+    for i in range(0, 4):
+        coord = [random.randint(0, ROWS-1), random.randint(0, COLS-1)]
+        start_x = max(coord[0] - 15, 0)
+        start_y = max(coord[1] - 15, 0)
+        end_x = min(coord[0] + 15, ROWS - 1)
+        end_y = min(coord[1] + 15, COLS - 1)
+        for x in range(start_x,end_x + 1):
+            for y in range(start_y, end_y + 1):
+                num_arr[x][y] = 2 if (random.random() > 0.5 or num_arr[x][y] == 2) else 1
+    # add highways  
+    i = 0
+    while i < 4:
+        tmp_list = deepcopy(num_arr)
+        if add_highway(num_arr) == -1:
+            num_arr = deepcopy(tmp_list)
+            continue
+        i = i + 1
+    # add blocked things
+    i = 0
+    while i < 0.2 * ROWS * COLS:
+        coord = [random.randint(0, ROWS-1), random.randint(0, COLS-1)]
+        if num_arr[coord[0]][coord[1]] != 'a' and num_arr[coord[0]][coord[1]] != 'b':
+            num_arr[coord[0]][coord[1]] = 0
+            i = i + 1
     return num_arr
+
+@page.route("get_grid",methods=['POST'])
+def get_grid(arr = None, size = 5):
+    try:
+        data = request.get_json()
+    except Exception as e:
+        return "Error", 500
+    grid = make_grid_nums()
+    response = {"grid": grid}
+    return json.dumps(response)
 
 @page.route("upload_grid", methods=['GET'])
 @page.route("/",methods=['GET', 'POST'])
@@ -29,80 +110,11 @@ def showhello(arr = None, size = 5):
     except Exception as e:
         pass
     if arr == None:
-            grid = make_grid_nums(size)
+            grid = make_grid_nums()
     else:
         grid = arr
-    grid2, value, solution = solver.solve_puzzle(grid, size)
-    return render_template('/grid.html', nums=grid, size=size, grid2=grid2, sol=solution, value = value)
+    return render_template('/grid.html', grid = json.dumps({"grid": grid}))
 
-
-# Connect to basic hill climb in controller
-def doBasic(size, grid, iters):
-    start = time.time()
-    grid_calc, grid_cost, value, solution, iters = hill.doBasic(grid, size, iters)
-    end = time.time()
-    if value > 0:
-     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s" + "\nIterations: " + str(iters)
-    return grid_calc, grid_cost, solution
-
-# Connect to restart in controller
-def doRestart(size, grid, iters, iters_per):
-    iters_per = int(iters_per)
-    start = time.time()
-    grid_calc, grid_cost, value, solution, iters = hill.doRestart(grid, size, iters, iters_per)
-    end = time.time()
-    if value > 0:
-     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s" + "\nIterations: " + str(iters)
-    return grid_calc, grid_cost, solution
-
-# Connect to the random walk controller
-def doWalk(size, grid, iters, prob):
-    prob = float(prob)
-    start = time.time()
-    grid_calc, grid_cost, value, solution, iters = hill.doBasic(grid, size, iters, prob)
-    end = time.time()
-    if value > 0:
-     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s" + "\nIterations: " + str(iters)
-    return grid_calc, grid_cost, solution
-
-# Connect to the simulated anneal controller
-def doAnneal(size, grid, iters, init_t, decay):
-    init_t = int(init_t)
-    decay = float(decay)
-    start = time.time()
-    grid_calc, grid_cost, value, solution, iters = hill.doAnneal(grid, size, iters, init_t, decay)
-    end = time.time()
-    if value > 0:
-     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s" + "\nIterations: " + str(iters)
-    return grid_calc, grid_cost, solution
-
-# Connect to the genetic population method controller
-def doGenetic(size, grid, iters, child, mut_rate, init_pop):
-    child = int(child)
-    iters = int(iters)
-    init_pop = int(init_pop)
-    mut_rate = float(mut_rate)
-    start = time.time()
-    grid_calc, grid_cost, value, solution = genetic.doGenetic(grid, size, iters, init_pop, child, mut_rate)
-    end = time.time()
-    if value > 0:
-     solution += "\nCompute Time: " + "{0:.2f}".format(end - start) + "s" 
-    return grid_calc, grid_cost, solution
-
-def arr_to_grid(grid):
-    n = math.sqrt(len(grid))
-    arr = []
-    if not n.is_integer():
-        raise
-    size = int(n)
-    count = 0
-    for n in range(0,size):
-        tmp_arr = []
-        for m in range(0,size):
-            tmp_arr.append(grid[count])
-            count += 1
-        arr.append(tmp_arr)
-    return arr
 
 @page.route("upload_grid", methods=['POST'])
 def upgrid():
@@ -140,46 +152,3 @@ def upgrid():
         flash("Error reading file", 'danger')
         return showhello()
 
-# Post method the web page will call when we need to find new grid values
-@page.route("get_grids",methods=['POST'])
-def getgrids():
-    size = 0
-    grid_o = None
-    grid_c_o = None
-    req_type = None
-    try:
-        data = request.get_json()
-        req_type = data['type']
-        size = data['size']
-        iters = int(data['iters'])
-        var2 = data['var2']
-        var3 = data['var3']
-        var4 = data['var4']
-        grid_o = data['grid']
-        grid_c_o = data['grid_c']
-    except Exception as e:
-       print(e) 
-       return "Error", 500
-    try:
-        # Choose the function to go to based on the request type
-        grid_o = arr_to_grid(grid_o)
-        grid_c_o = arr_to_grid(grid_c_o)
-        if req_type == "basic":
-            grid, grid2, msg = doBasic(size, grid_o, iters)
-        elif req_type == 'restart':
-            grid, grid2, msg = doRestart(size, grid_o, iters, var2)
-        elif req_type == 'walk':
-            grid, grid2, msg = doWalk(size, grid_o, iters, var2)
-        elif req_type == 'anneal':
-            grid, grid2, msg = doAnneal(size, grid_o, iters, var2, var3)
-        elif req_type == 'genetic':
-            grid, grid2, msg = doGenetic(size, grid_o, iters, var2, var3, var4)
-        else:
-            return "Bad request", 400
-    except Exception as e:
-        print(e)
-        print(traceback.print_exc())
-        return "Internal Server Error", 500
-
-    response = {"grid": grid, "grid2": grid2, "msg": msg}
-    return json.dumps(response)
