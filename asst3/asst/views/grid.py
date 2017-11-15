@@ -110,9 +110,8 @@ def make_grid_nums():
             num_arr[coord[0]][coord[1]] = 0
             i = i + 1
     start, end = make_start_end(num_arr)
-    text = a_star.solve(num_arr, start, end)
-    print(text)
-    return num_arr, start, end
+    solved, path = a_star.solve(num_arr, start, end)
+    return num_arr, start, end, path
 
 @page.route("get_grid",methods=['POST'])
 def get_grid(arr = None, size = 5):
@@ -120,8 +119,8 @@ def get_grid(arr = None, size = 5):
         data = request.get_json()
     except Exception as e:
         return "Error", 500
-    grid, start, end = make_grid_nums()
-    response = {"grid": grid, "start": start, "end": end}
+    grid, start, end, path = make_grid_nums()
+    response = {"grid": grid, "start": start, "end": end, "path" : path}
     return json.dumps(response)
 
 @page.route("upload_grid", methods=['GET'])
@@ -132,10 +131,10 @@ def showhello(arr = None, size = 5):
     except Exception as e:
         pass
     if arr == None:
-            grid, start, end = make_grid_nums()
+            grid, start, end, path = make_grid_nums()
     else:
         grid = arr
-    return render_template('/grid.html', init_data = json.dumps({"grid": grid, "start": start, "end": end}))
+    return render_template('/grid.html', init_data = json.dumps({"grid": grid, "start": start, "end": end, "path" : path}))
 
 
 @page.route("upload_grid", methods=['POST'])

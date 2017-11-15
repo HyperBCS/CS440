@@ -244,7 +244,20 @@ function loadInit(){
   var grid = init_grid.grid
   var start = init_grid.start
   var end = init_grid.end
+  var paths = init_grid.path
   setGrid(grid, start, end)
+  setPath(grid, paths)
+}
+
+function setPath(grid, path){
+
+    for(i = 0; i < path.length;i++){
+      var curr = path[i][0]*cols + path[i][1]
+      var rect = stage.findOne('#' + (curr).toString())
+      rect.setFill('red')
+    }
+    layer.draw()
+
 }
 
 function setGrid(grid, start, end){
@@ -261,7 +274,7 @@ function setGrid(grid, start, end){
             color = 'black'
             break
           case 2:
-            color = 'yellow'
+            color = 'grey'
             break
           case 'a':
             color = 'blue'
@@ -281,6 +294,7 @@ function setGrid(grid, start, end){
       }
     }
     layer.draw()
+
 }
 
 </script>
