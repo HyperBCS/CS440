@@ -10,23 +10,23 @@ n = 5
 
 def heur1(point, end):
 	std = math.hypot(point[0] - end[0], point[1] - end[1])
-	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2) - 0.25*(std)
+	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
 
 def heur2(point, end):
 	std = math.hypot(point[0] - end[0], point[1] - end[1])
-	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2) - 0.25*(std)
+	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
 
 def heur3(point, end):
 	std = math.hypot(point[0] - end[0], point[1] - end[1])
-	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2) - 0.25*(std)
+	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
 
 def heur4(point, end):
 	std = math.hypot(point[0] - end[0], point[1] - end[1])
-	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2) - 0.25*(std)
+	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
 
 def heur5(point, end):
 	std = math.hypot(point[0] - end[0], point[1] - end[1])
-	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2) - 0.25*(std)
+	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
 
 # returns g + w*h for the specified hueristic index
 def key(s, i, g, end, w, g_h_f):
@@ -104,19 +104,20 @@ def solve(num_arr, start, end, w=[1, 1.25]):
 		fr[i].insert(vertex.Vertex(start, key(start, i, g, end, w, g_h_f)))
 		closed.append(set())
 
+	goal_cid = utils.coord_id(end)
 	while fr[0].minkey().g_h < math.inf:
 		for i in range(n):
 			if fr[i].minkey().g_h <= w[1] * fr[i].minkey().g_h:
-				if g[i][utils.coord_id(end)] <= fr[i].minkey().g_h:
-					if g[i][utils.coord_id(end)] < math.inf:
+				if g[i][goal_cid] <= fr[i].minkey().g_h:
+					if g[i][goal_cid] < math.inf:
 						return True, utils.goal_path(start, end, parent[i]), g_h_f[i]
 				else:
 					s = fr[i].top()
 					expand_state(s, i, fr, g, parent, num_arr, closed, end, w,g_h_f)
 					closed[i].add(s)
 			else:
-				if g[0][utils.coord_id(end)] <= fr[0].minkey().g_h:
-					if g[0][utils.coord_id(end)] < math.inf:
+				if g[0][goal_cid] <= fr[0].minkey().g_h:
+					if g[0][goal_cid] < math.inf:
 						return True, utils.goal_path(start, end, parent[i]), g_h_f[0]
 				else:
 					s = fr[i].top()

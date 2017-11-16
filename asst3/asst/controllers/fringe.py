@@ -18,10 +18,8 @@ class Fringe(object):
 			self.fringe.append(s)
 
 	def remove(self, s):
-		cid = utils.coord_id(s)
-		for obj in self.fringe[:]:
-			if cid == obj.cid:
-				self.fringe.remove(obj)
+		tmp_vert = vertex.Vertex(s, 0)
+		self.fringe.remove(tmp_vert)
 
 	def minkey(self):
 		if len(self.fringe) > 0:

@@ -9,7 +9,7 @@ COLS = 160
 
 def heur(point, end):
 	std = math.hypot(point[0] - end[0], point[1] - end[1])
-	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2) - 0.25*(std)
+	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
 
 def solve(num_arr, start, end, w=1):
 	goal = vertex.Vertex(end, 0)
