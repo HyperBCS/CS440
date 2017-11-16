@@ -19,6 +19,21 @@ class Fringe(object):
 			if cid == obj.cid:
 				self.fringe.remove(obj)
 
+	def get_vert(self, s):
+		cid = utils.coord_id(s)
+		for obj in self.fringe[:]:
+			if cid == obj.cid:
+				return obj
+
+	def upd_vert(self, s, g_h):
+		cid = utils.coord_id(s)
+		for obj in self.fringe[:]:
+			if cid == obj.cid:
+				obj.g_h = g_h
+				heapq.heapify(self.fringe)
+				return True
+		return False
+
 	def pop(self):
 		try:
 			return heapq.heappop(self.fringe)

@@ -82,27 +82,21 @@ def solve(num_arr, start, end):
 	
 	while len(fr) != 0:
 		s = fr.pop()
+		s_c = [s.x, s.y]
 		if s == goal:
 			path = goal_path(start, end, parent)
 			return True, path
 		closed.add(s)
 		for s_p in succ(num_arr,s, closed):
-			if s_p not in fr.to_list():
-				sp_cid = utils.coord_id([s_p.x, s_p.y])
-				g[sp_cid] = math.inf
-				parent[sp_cid] = None
-			update_vertex(s, s_p, g, parent, fr, end, num_arr)
+			sp_c = [s_p.x, s_p.y]
+			sp_cid = utils.coord_id(sp_c)
+			ch_cost = s.g_h + cost(num_arr,s_c, sp_c)
+			if s_p not in fr.to_list() and s_p not in closed:
+				g[sp_cid] = ch_cost
+				parent[sp_cid] = s_c
+				fr.insert(vertex.Vertex(sp_c, ch_cost))
+			elif s_p in fr.to_list() and ch_cost < s.g_h:
+				fr.update(s_p, ch_cost)
+				g[sp_cid] = ch_cost
+				parent[sp_cid] = s_c
 	return False, []
-
-
-def update_vertex(s, s_p, g, parent, fr, end, num_arr):
-	s_c = [s.x, s.y]
-	sp_c = [s_p.x, s_p.y]
-	s_cid = utils.coord_id(s_c)
-	sp_cid = utils.coord_id(sp_c)
-	if cost(num_arr, s_c, sp_c) < g[sp_cid]:
-		g[sp_cid] = cost(num_arr, s_c, sp_c)
-		parent[sp_cid] = s_c
-		if s_p in fr.to_list():
-			fr.remove(sp_c)
-		fr.insert(vertex.Vertex(sp_c, cost(num_arr, s_c, sp_c)))
