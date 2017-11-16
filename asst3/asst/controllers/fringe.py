@@ -8,7 +8,8 @@ from asst.controllers import utils, vertex
 class Fringe(object):
 
 	def __init__(self, prior = True):
-		self.prior = prior
+		# Setting to always true for now
+		self.prior = True
 		self.fringe = []
 
 	def insert(self, s ):
