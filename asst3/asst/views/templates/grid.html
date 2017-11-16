@@ -72,91 +72,76 @@
 
             <div class="tab-content ">
               <div class="tab-pane active" id="1">
-          <h3>Puzzle Solution</h3>
-          <p> Solution value: {{value}}
-          <p>{{sol}}
+          <div id = "info1">
+          <h3>A*</h3>
+          <p> Selected Cell: x: null y: null
+          <p> g-value: null
+          <p> h-value: null
+          <p> f-value: null 
+          </div>
                 </div>
 
                 <div class="tab-pane" id="2">
-          <h3>Puzzle Solution</h3>
-          Iterations
+          <h3>Weighed A*</h3>
+          Weight
           <div class="row">
           <div class="col-xs-3">
             <div class="input-group number-spinner">
-              <span class="input-group-btn data-dwn">
-                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
-              </span>
-              <input type="text" id = "iter2" + class="form-control text-center" value="50" min="1">
-              <span class="input-group-btn data-up">
-                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
-              </span>
+              <input type="text" id = "w" + class="form-control text-center" value="1" min="1">
             </div>
           </div>
-          <input type="submit" value="Re-Solve" id = "basicButton" class="btn btn-primary" align="right"/>
+          <input type="submit" value="Re-Solve" id = "wButton" class="btn btn-primary" align="right"/>
         </div>
+          <div id = "info2">
           <br>
-
+          <p> Selected Cell: x: null y: null
+          <p> g-value: null
+          <p> h-value: null
+          <p> f-value: null 
+          </div>
           <div id=sol2>
           </div>
 
                 </div>
 
         <div class="tab-pane" id="3">
-          <h3>Solution 3</h3>
-          Restarts
+          <h3>Sequential Hueristic A*</h3>
+          Weight 1
           <div class="row">
           <div class="col-xs-3">
             <div class="input-group number-spinner">
-              <span class="input-group-btn data-dwn">
-                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
-              </span>
-              <input type="text" id = "iter3" + class="form-control text-center" value="50" min="1">
-              <span class="input-group-btn data-up">
-                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
-              </span>
+              <input type="text" id = "w1" + class="form-control text-center" value="1" min="1">
             </div>
           </div>
         </div>
-          Iterations Per Restart
+          Weight 2
           <div class="row">
           <div class="col-xs-3">
             <div class="input-group number-spinner">
-              <span class="input-group-btn data-dwn">
-                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
-              </span>
-              <input type="text" id = "iter3val" + class="form-control text-center" value="50" min="1">
-              <span class="input-group-btn data-up">
-                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
-              </span>
+              <input type="text" id = "w2" + class="form-control text-center" value="1.25" min="1">
             </div>
           </div>
-          <input type="submit" value="Re-Solve" id = "restartButton" class="btn btn-primary" align="right"/>
+          <input type="submit" value="Re-Solve" id = "w1Button" class="btn btn-primary" align="right"/>
         </div>
-
-
+          <div id = "info3">
+          <br>
+          <p> Selected Cell: x: null y: null
+          <p> g-value: null
+          <p> h-value: null
+          <p> f-value: null 
+          </div>
 
                     <div id=sol3>
           </div>
 
                 </div>
                <div class="tab-pane" id="4">
-          <h3>Puzzle Solution</h3>
-          Iterations
-          <div class="row">
-          <div class="col-xs-3">
-            <div class="input-group number-spinner">
-              <span class="input-group-btn data-dwn">
-                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
-              </span>
-              <input type="text" id = "iter2" + class="form-control text-center" value="50" min="1">
-              <span class="input-group-btn data-up">
-                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
-              </span>
-            </div>
-          </div>
-          <input type="submit" value="Re-Solve" id = "basicButton" class="btn btn-primary" align="right"/>
-        </div>
+          <h3>Uniform Cost Search</h3>
+          <div id = "info4">
           <br>
+          <p> Selected Cell: x: null y: null
+          <p> cost: null
+          </div>
 
           <div id=sol4>
           </div>
@@ -186,7 +171,7 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
   var target = $(e.target).text() // activated tab
   type = $(this).attr('value')
   $('#puzzle_title').text("Grid Visualizer: " + target)
-  calcGrids()
+  solveMethod()
 })
 
 
@@ -201,19 +186,25 @@ setInterval(function() {
     }
 }, 1000);
 // EVERYTHING FROM HERE DOWN FOR GRID
-
+    var selected_cell = 0;
+    var curr_grid = null
+    var grid_start = null
+    var grid_end = null
+    var g_h_f = 0;
     var rows = 120;
     var cols = 160;
     var width = (document.getElementById("grid").clientWidth )* 0.9;
     var height = width * rows / cols;
 
+    var layer = new Konva.Layer();
     var stage = new Konva.Stage({
         container: 'grid',
         width: width,
         height: height
     });
 
-    var layer = new Konva.Layer();
+function loadBoard(){
+    setLoading(true)
     var rectX = stage.getWidth() / cols;
     var rectY = stage.getHeight() / rows;
     var posX = 0;
@@ -229,7 +220,7 @@ setInterval(function() {
             height: rectY,
             fill: 'white',
             stroke: 'black',
-            strokeWidth: 1,
+            strokeWidth: 0.5,
             id : id
         });
         layer.add(rect);
@@ -240,39 +231,97 @@ setInterval(function() {
     }
 
     stage.add(layer);
+  }
 
-function loadGrid(gridName){
+  $( "#wButton" ).click(function() {
+    var iters = $('#w').val()
+    if(iters >= 1){
+      solveMethod(iters)
+    } else{
+      alert("Please choose weight 1 or above")
+    }
+  });
+
+    $( "#w1Button" ).click(function() {
+    var w1 = $('#w1').val()
+    var w2 = $('#w2').val()
+    if(w1 >= 1 && w2 >= 1){
+      solveMethod(w1, w2)
+    } else{
+      alert("Please choose weights 1 or above")
+    }
+  });
+
+function loadGrid(filename=0){
+    setLoading(true)
     var active_tab = $('.tab-content .active').attr('id');
-    $("#grid").hide();
-    $("#loading h3").text("Loading.")
-    $("#loading").show();
     $.ajax({
     url: "/get_grid",
     type: "POST",
-    data: JSON.stringify({grid_name: gridName, method: active_tab}),
+    data: JSON.stringify({grid_name: filename, method: active_tab}),
     contentType: "application/json; charset=utf-8",
     success: function(data) { result = JSON.parse(data); 
-        setGrid(result.grid)
-        $('#' + active_tab + ' h3').text("Puzzle Solution")
-        $("#loading").hide();
-        $("#grid").show();
+        g_h_f = result.g_h_f
+        curr_grid = result.grid
+        grid_start = result.start
+        grid_end = result.end
+        setGrid(result.grid, result.start, result.end)
+        setPath(result.grid, result.path)
+        setLoading(false)
     },
     error: function(xhr, textStatus, errorThrown){
+      setLoading(false)
        $("#loading h3").text("Error");
-    $('#' + active_tab + ' h3').text("Error")
+      $('#' + active_tab + ' h3').text("Error")
     }
 });
 }
 
-var init_grid = JSON.parse(he.decode('{{ init_data }}'))
+function solveMethod(we1 = 0, we2 = 0){
+   setLoading(true)
+    var active_tab = $('.tab-content .active').attr('id');
+    w1 = 1
+    w2 = 1.25
+    if(we1 != 0){
+      w1 = we1
+      w2 = we2
+    }
+    $.ajax({
+    url: "/solve_grid",
+    type: "POST",
+    data: JSON.stringify({grid: curr_grid, method: active_tab, start: grid_start, end: grid_end, w1: w1, w2: w2}),
+    contentType: "application/json; charset=utf-8",
+    success: function(data) { result = JSON.parse(data); 
+        g_h_f = result.g_h_f
+        setGrid(curr_grid, grid_start, grid_end)
+        setPath(curr_grid, result.path)
+        setLoading(false)
+    },
+    error: function(xhr, textStatus, errorThrown){
+      setLoading(false)
+       $("#loading h3").text("Error");
+      $('#' + active_tab + ' h3').text("Error")
+    }
+});
+}
+
+
+function setLoading(isLoading){
+  var active_tab = $('.tab-content .active').attr('id');
+  if(isLoading){
+    $("#grid").hide();
+    $("#loading h3").text("Loading.")
+    $("#loading").show();
+  } else{
+    $("#loading").hide();
+    $("#grid").show();
+  }
+
+}
 
 function loadInit(){
-  var grid = init_grid.grid
-  var start = init_grid.start
-  var end = init_grid.end
-  var paths = init_grid.path
-  setGrid(grid, start, end)
-  setPath(grid, paths)
+  loadBoard()
+  loadGrid()
 }
 
 function setPath(grid, path){
@@ -286,11 +335,38 @@ function setPath(grid, path){
 
 }
 
+function setCellText(cid){
+  var active_tab = $('.tab-content .active').attr('id');
+  x_coord = cid % cols
+  y_coord = Math.floor(cid / cols)
+  console.log(cid)
+  console.log("X: " + x_coord + " Y: " + y_coord)
+
+  if(active_tab == "4"){
+      $("#info4").html(
+        "<br>" +
+        "<p> Selected Cell: x: " + x_coord + " y: " + y_coord +
+        "<p> cost: " + g_h_f[cid]
+        )
+  } else{
+    g_g = g_h_f[cid] == null ? null : g_h_f[cid][0]
+    g_h = g_h_f[cid] == null ? null : g_h_f[cid][1]
+    g_f = g_h_f[cid] == null ? null : g_h_f[cid][2]
+      $("#info" + active_tab).html(
+        "<br>" +
+        "<p> Selected Cell: x: " + x_coord + " y: " + y_coord +
+        "<p> g-value: " + g_g +
+        "<p> h-value: " + g_h +
+        "<p> f-value: " + g_f
+        )
+  }
+
+}
+
 function setGrid(grid, start, end){
+    setLoading(true)
     var start = start[0] * cols + start[1]
     var end = end[0] * cols + end[1]
-    console.log(start)
-    console.log(end)
     for (i = 0;i < rows;i++){
       for(j = 0;j < cols;j++){
         var curr = i*cols + j
@@ -320,8 +396,24 @@ function setGrid(grid, start, end){
       }
     }
     layer.draw()
-
+    setLoading(false)
 }
+
+
+    stage.on('click tap touchstart', function(evt) {
+        var rect = evt.target;
+        rect.stroke('blue');
+        rect.strokeWidth(1);
+        var old = stage.findOne('#'+selected_cell)
+        if(old != null && old.id() != rect.id()){
+            old.stroke('black');
+            old.strokeWidth(0.5);
+        }
+        selected_cell = rect.id()
+        // writeMessage('Table: ' + selected_table + ' selected');
+        layer.draw();
+        setCellText(selected_cell)
+    });
 
 </script>
 <html>

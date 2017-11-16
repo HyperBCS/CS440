@@ -2,7 +2,6 @@ import random, math
 import numpy as np
 import heapq
 import time
-from copy import deepcopy
 from asst.controllers import utils, vertex, fringe
 
 ROWS = 120
@@ -24,7 +23,7 @@ def solve(num_arr, start, end):
 		s_c = [s.x, s.y]
 		if s == goal:
 			path = utils.goal_path(start, end, parent)
-			return True, path
+			return True, path, g
 		closed.add(s)
 		for s_p in utils.succ(num_arr,s, closed):
 			sp_c = [s_p.x, s_p.y]
@@ -38,4 +37,4 @@ def solve(num_arr, start, end):
 				fr.update(s_p, ch_cost)
 				g[sp_cid] = ch_cost
 				parent[sp_cid] = s_c
-	return False, []
+	return False, [], []

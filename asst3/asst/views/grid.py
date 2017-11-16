@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, abort, flash
 from flask import request
 from itertools import *
-from asst.controllers import a_star, ucs
+from asst.controllers import a_star, ucs, a_star_seq
 import numpy as np
 from copy import deepcopy
 import traceback
@@ -110,8 +110,31 @@ def make_grid_nums():
             num_arr[coord[0]][coord[1]] = 0
             i = i + 1
     start, end = make_start_end(num_arr)
-    solved, path = a_star.solve(num_arr, start, end)
-    return num_arr, start, end, path
+    return num_arr, start, end
+
+@page.route("solve_grid",methods=['POST'])
+def solve_grid(arr = None, size = 5):
+    try:
+        data = request.get_json()
+        grid = data['grid']
+        start = data['start']
+        end = data['end']
+        w = [float(data['w1']), float(data['w2'])]
+        method = int(data['method'])
+    except Exception as e:
+        return "Error", 500
+    if method == 1:
+        solved, path, g_h_f = a_star.solve(grid, start, end)
+    elif method == 2:
+        solved, path, g_h_f = a_star.solve(grid, start, end, w[0])
+    elif method == 3:
+        solved, path, g_h_f = a_star_seq.solve(grid, start, end, w)
+    elif method == 4:
+        solved, path, g_h_f = ucs.solve(grid, start, end)
+    else:
+        return "Error", 400
+    response = {"grid": grid, "start": start, "end": end, "path" : path, "g_h_f": g_h_f}
+    return json.dumps(response)
 
 @page.route("get_grid",methods=['POST'])
 def get_grid(arr = None, size = 5):
@@ -119,22 +142,15 @@ def get_grid(arr = None, size = 5):
         data = request.get_json()
     except Exception as e:
         return "Error", 500
-    grid, start, end, path = make_grid_nums()
-    response = {"grid": grid, "start": start, "end": end, "path" : path}
+    grid, start, end = make_grid_nums()
+    solved, path, g_h_f = a_star.solve(grid, start, end)
+    response = {"grid": grid, "start": start, "end": end, "path" : path, "g_h_f": g_h_f}
     return json.dumps(response)
 
 @page.route("upload_grid", methods=['GET'])
 @page.route("/",methods=['GET', 'POST'])
 def showhello(arr = None, size = 5):
-    try:
-        size = int(request.form['size'])
-    except Exception as e:
-        pass
-    if arr == None:
-            grid, start, end, path = make_grid_nums()
-    else:
-        grid = arr
-    return render_template('/grid.html', init_data = json.dumps({"grid": grid, "start": start, "end": end, "path" : path}))
+    return render_template('/grid.html')
 
 
 @page.route("upload_grid", methods=['POST'])
