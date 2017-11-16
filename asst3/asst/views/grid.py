@@ -110,7 +110,7 @@ def make_grid_nums():
             num_arr[coord[0]][coord[1]] = 0
             i = i + 1
     start, end = make_start_end(num_arr)
-    solved, path = ucs.solve(num_arr, start, end)
+    solved, path = a_star.solve(num_arr, start, end)
     return num_arr, start, end, path
 
 @page.route("get_grid",methods=['POST'])

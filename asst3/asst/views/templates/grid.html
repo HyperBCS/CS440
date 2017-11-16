@@ -67,6 +67,7 @@
             <a href="#1" data-toggle="tab" value="default">A*</a></li>
             <li><a href="#2" data-toggle="tab" value="basic">Weighted A*</a></li>
             <li><a href="#3" data-toggle="tab" value="restart">Sequential Heuristic A*</a></li>
+            <li><a href="#4" data-toggle="tab" value="restart">Uniform Cost Search</a></li>
         </ul>
 
             <div class="tab-content ">
@@ -138,6 +139,31 @@
           </div>
 
                 </div>
+               <div class="tab-pane" id="4">
+          <h3>Puzzle Solution</h3>
+          Iterations
+          <div class="row">
+          <div class="col-xs-3">
+            <div class="input-group number-spinner">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
+              <input type="text" id = "iter2" + class="form-control text-center" value="50" min="1">
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+              </span>
+            </div>
+          </div>
+          <input type="submit" value="Re-Solve" id = "basicButton" class="btn btn-primary" align="right"/>
+        </div>
+          <br>
+
+          <div id=sol4>
+          </div>
+
+                </div>
+
+
             </div>
   </div>
 
@@ -159,7 +185,7 @@ function setAktivMenu(text) {
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
   var target = $(e.target).text() // activated tab
   type = $(this).attr('value')
-  $('#puzzle_title').text("Puzzle Visualizer: " + target)
+  $('#puzzle_title').text("Grid Visualizer: " + target)
   calcGrids()
 })
 
