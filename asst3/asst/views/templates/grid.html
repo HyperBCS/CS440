@@ -325,6 +325,7 @@ function loadInit(){
   loadBoard()
   if(init_filename != "None"){
     loadFile(init_filename)
+    setAktivMenu(init_filename);
   } else{
     loadGrid()
   }
