@@ -18,23 +18,22 @@
 <br>
 <div class="container">
     <div class="row">
-     <div class="dropdown col-sm-4">
+     <div class="dropdown col-sm-2">
     <button class="btn btn-primary dropdown-toggle" id="size" type="button" data-toggle="dropdown">Premade Grids
     <span class="caret"></span></button>
     <ul class="dropdown-menu">
-      <li><a href="#">5</a></li>
-      <li><a href="#">7</a></li>
-      <li><a href="#">9</a></li>
-      <li><a href="#">11</a></li>
+    {% for filename in files %}
+      <li><a href="#">{{filename}}</a></li>
+    {% endfor %}
     </ul>
   </div>
 
-  <form action="/" method="post">
-  <input type="hidden" name="size" id= "size_button" value= {{size}}>
-   <button type="submit" class="btn btn-primary col-sm-4" align="right">Generate Random Grid</button>
-</form> 
+    <div class="col-sm-4"  align="center">
+  <input type="submit" value="Export Current Grid" id = "export" class="btn btn-primary"/>
+  </form> 
+  </div>
     
-    <div class="col-sm-4" align="right"">
+    <div class="col-sm-4" align="right">
     <form method=post enctype=multipart/form-data action="/upload_grid" >
       <input type="file" name="file" style="float: left" />
    <input type="submit" value="Upload" class="btn btn-primary" align="right"/>
@@ -163,8 +162,8 @@ function setAktivMenu(text) {
    });
 }
   $('#size + .dropdown-menu').on('click', 'li>a', function() {
-    $('#size_button').val($(this).text())
    setAktivMenu($(this).text());
+   loadFile($(this).text())
 });
 
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -187,9 +186,11 @@ setInterval(function() {
 }, 1000);
 // EVERYTHING FROM HERE DOWN FOR GRID
     var selected_cell = 0;
+    var init_filename = "{{filename}}"
     var curr_grid = null
     var grid_start = null
     var grid_end = null
+    var grid_regions = null
     var g_h_f = 0;
     var rows = 120;
     var cols = 160;
@@ -252,19 +253,20 @@ function loadBoard(){
     }
   });
 
-function loadGrid(filename=0){
+function loadGrid(){
     setLoading(true)
     var active_tab = $('.tab-content .active').attr('id');
     $.ajax({
     url: "/get_grid",
     type: "POST",
-    data: JSON.stringify({grid_name: filename, method: active_tab}),
+    data: JSON.stringify({method: active_tab}),
     contentType: "application/json; charset=utf-8",
     success: function(data) { result = JSON.parse(data); 
         g_h_f = result.g_h_f
         curr_grid = result.grid
         grid_start = result.start
         grid_end = result.end
+        grid_regions = result.regions
         setGrid(result.grid, result.start, result.end)
         setPath(result.grid, result.path)
         setLoading(false)
@@ -321,7 +323,11 @@ function setLoading(isLoading){
 
 function loadInit(){
   loadBoard()
-  loadGrid()
+  if(init_filename != "None"){
+    loadFile(init_filename)
+  } else{
+    loadGrid()
+  }
 }
 
 function setPath(grid, path){
@@ -372,10 +378,10 @@ function setGrid(grid, start, end){
         var curr = i*cols + j
         var rect = stage.findOne('#' + (curr).toString())
         switch(grid[i][j]) {
-          case 0:
+          case '0':
             color = 'black'
             break
-          case 2:
+          case '2':
             color = 'grey'
             break
           case 'a':
@@ -414,6 +420,84 @@ function setGrid(grid, start, end){
         layer.draw();
         setCellText(selected_cell)
     });
+
+function download(filename, text) {
+    var pom = document.createElement('a');
+    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    pom.setAttribute('download', filename);
+
+    if (document.createEvent) {
+        var event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        pom.dispatchEvent(event);
+    }
+    else {
+        pom.click();
+    }
+}
+
+  $( "#export" ).click(function() {
+    var filename = prompt("Please enter file name:", "grid.txt");
+    if (filename == null || filename == "") {
+        return
+    }
+    var string = ""
+    // append start
+    string += grid_start[0] + "," + grid_start[1] + "\n"
+    // append end
+    string += grid_end[0] + "," + grid_end[1] + "\n"
+    // append regions
+    for(i = 0; i < grid_regions.length; i++){
+      string += grid_regions[i][0] + "," + grid_regions[i][0] + "\n"
+    }
+    // append grid
+    for(i = 0; i < curr_grid.length; i++){
+      string += curr_grid[i].join("") + "\n";
+    }
+    download(filename, string)
+  });
+
+function loadFile(filename){
+    setLoading(true)
+    var active_tab = $('.tab-content .active').attr('id');
+    var w1 = 1
+    var w2 = 1
+    if(active_tab == '2'){
+      w1 = $('#w1').val()
+      if(w1 <= 1){
+        alert("Please choose weights 1 or above")
+        return
+      }
+    } else if(active_tab == '3'){
+      w1 = $('#w1').val()
+      w2 = $('#w2').val()
+      if(w1 < 1 || w2 < 1){
+        alert("Please choose weights 1 or above")
+        return
+      }
+    }
+    $.ajax({
+    url: "/load_file",
+    type: "POST",
+    data: JSON.stringify({filename: filename, method: active_tab, w1: w1, w2: w2}),
+    contentType: "application/json; charset=utf-8",
+    success: function(data) { result = JSON.parse(data); 
+        g_h_f = result.g_h_f
+        curr_grid = result.grid
+        grid_start = result.start
+        grid_end = result.end
+        grid_regions = result.regions
+        setGrid(result.grid, result.start, result.end)
+        setPath(result.grid, result.path)
+        setLoading(false)
+    },
+    error: function(xhr, textStatus, errorThrown){
+      setLoading(false)
+       $("#loading h3").text("Error");
+      $('#' + active_tab + ' h3').text("Error")
+    }
+});
+}
 
 </script>
 <html>

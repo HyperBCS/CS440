@@ -4,6 +4,10 @@ import heapq
 import time
 from copy import deepcopy
 from asst.controllers import vertex
+from werkzeug.datastructures import FileStorage
+import sys, traceback
+from os import listdir
+from os.path import isfile, join, dirname, realpath
 
 ROWS = 120
 COLS = 160
@@ -36,7 +40,7 @@ def succ(num_arr, point, closed):
 	return succs
 
 def check_bounds(num_arr, point):
-	if(point[0] < 0 or point[0] > ROWS - 1 or point[1] < 0 or point[1] > COLS - 1 or num_arr[point[0]][point[1]] == 0):
+	if(point[0] < 0 or point[0] > ROWS - 1 or point[1] < 0 or point[1] > COLS - 1 or num_arr[point[0]][point[1]] == '0'):
 		return True
 	else:
 		return False
@@ -67,3 +71,42 @@ def goal_path(start, end, parent):
 		if curr != start:
 			g_path.append(curr)
 	return g_path
+
+def str_to_coord(coord):
+	for i in range(len(coord)):
+		coord[i] = int(coord[i])
+
+def parse_file(file):
+    lines =  file.readlines()
+    if type(lines[0]) is bytes:
+    	print("BYTES")
+    	g_lines = [line.decode().strip() for line in lines]
+    else:
+    	g_lines = [line.strip() for line in lines]
+    # parse start
+    start = g_lines.pop(0).split(",")
+    str_to_coord(start)
+    # parse goal
+    end = g_lines.pop(0).split(",")
+    str_to_coord(end)
+    # parse  hard to traverse regions
+    regions = []
+    for i in range(8):
+        regions.append(g_lines.pop(0).split(","))
+        str_to_coord(regions[i])
+    return g_lines, start, end, regions
+
+def load_file(filename):
+	path = dirname(realpath(__file__)) + "/../grids/" + filename
+	try:
+		file = open(path,"r") 
+		return parse_file(file)
+	except:
+		traceback.print_exc(file=sys.stdout)
+		return None
+
+
+def save_file(file, filename):
+	path = dirname(realpath(__file__)) + "/../grids/" + filename
+	file.save(path)
+	file.close()

@@ -37,9 +37,9 @@ def add_highway(num_arr):
         for a in range(0,20):
             if num_arr[x_c][y_c] == 'a' or num_arr[x_c][y_c] == 'b':
                 return -1
-            if num_arr[x_c][y_c] == 1:
+            if num_arr[x_c][y_c] == '1':
                 num_arr[x_c][y_c] = 'a'
-            elif num_arr[x_c][y_c] == 2:
+            elif num_arr[x_c][y_c] == '2':
                 num_arr[x_c][y_c] = 'b'
             if a < 19:
                 x_c = x_c + mov_x
@@ -66,7 +66,7 @@ def make_start_end(num_arr):
         corner_coords.append([random.randint(1, ROWS-1), random.randint(0, 20)])
         # right wall
         corner_coords.append([random.randint(1, ROWS-1), random.randint(COLS-21, COLS-1)])
-        if num_arr[corner_coords[start_end[0]][0]][corner_coords[start_end[0]][1]] != 0 and num_arr[corner_coords[start_end[1]][0]][corner_coords[start_end[1]][1]] != 0:
+        if num_arr[corner_coords[start_end[0]][0]][corner_coords[start_end[0]][1]] != '0' and num_arr[corner_coords[start_end[1]][0]][corner_coords[start_end[1]][1]] != '0':
             distance =  math.hypot(corner_coords[start_end[1]][1] - corner_coords[start_end[0]][1], corner_coords[start_end[1]][0] - corner_coords[start_end[0]][0])
             if distance >= 100:
                 break
@@ -75,18 +75,19 @@ def make_start_end(num_arr):
 
 # create a random grid of size n
 def make_grid_nums():
-    terrain = [0, 1, 2, 'a', 'b']
-    num_arr = np.full((ROWS, COLS), 1).tolist()
+    num_arr = np.full((ROWS, COLS), '1').tolist()
+    regions = []
     # Doing hard to traverse
     for i in range(0, 8):
         coord = [random.randint(0, ROWS-1), random.randint(0, COLS-1)]
+        regions.append(coord)
         start_x = max(coord[0] - 15, 0)
         start_y = max(coord[1] - 15, 0)
         end_x = min(coord[0] + 15, ROWS - 1)
         end_y = min(coord[1] + 15, COLS - 1)
         for x in range(start_x,end_x + 1):
             for y in range(start_y, end_y + 1):
-                num_arr[x][y] = 2 if (random.random() > 0.5 or num_arr[x][y] == 2) else 1
+                num_arr[x][y] = '2' if (random.random() > 0.5 or num_arr[x][y] == '2') else '1'
     # add highways  
     i = 0
     while i < 4:
@@ -100,7 +101,7 @@ def make_grid_nums():
     while i < 0.2 * ROWS * COLS:
         coord = [random.randint(0, ROWS-1), random.randint(0, COLS-1)]
         if num_arr[coord[0]][coord[1]] != 'a' and num_arr[coord[0]][coord[1]] != 'b':
-            num_arr[coord[0]][coord[1]] = 0
+            num_arr[coord[0]][coord[1]] = '0'
             i = i + 1
     start, end = make_start_end(num_arr)
-    return num_arr, start, end
+    return num_arr, start, end, regions
