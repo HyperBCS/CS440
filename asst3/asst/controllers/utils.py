@@ -79,7 +79,6 @@ def str_to_coord(coord):
 def parse_file(file):
     lines =  file.readlines()
     if type(lines[0]) is bytes:
-    	print("BYTES")
     	g_lines = [line.decode().strip() for line in lines]
     else:
     	g_lines = [line.strip() for line in lines]
