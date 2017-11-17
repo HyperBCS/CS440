@@ -272,9 +272,7 @@ function loadGrid(){
         setLoading(false)
     },
     error: function(xhr, textStatus, errorThrown){
-      setLoading(false)
-       $("#loading h3").text("Error");
-      $('#' + active_tab + ' h3').text("Error")
+      setLoading(false, true)
     }
 });
 }
@@ -300,21 +298,21 @@ function solveMethod(we1 = 0, we2 = 0){
         setLoading(false)
     },
     error: function(xhr, textStatus, errorThrown){
-      setLoading(false)
-       $("#loading h3").text("Error");
-      $('#' + active_tab + ' h3').text("Error")
+      setLoading(false, true)
     }
 });
 }
 
 
-function setLoading(isLoading){
+function setLoading(isLoading, error = false){
   var active_tab = $('.tab-content .active').attr('id');
-  if(isLoading){
+  if(isLoading && error == false){
     $("#grid").hide();
     $("#loading h3").text("Loading.")
     $("#loading").show();
-  } else{
+  } else if (error){
+     $("#loading h3").text("Error");
+    } else{
     $("#loading").hide();
     $("#grid").show();
   }
@@ -493,9 +491,7 @@ function loadFile(filename){
         setLoading(false)
     },
     error: function(xhr, textStatus, errorThrown){
-      setLoading(false)
-       $("#loading h3").text("Error");
-      $('#' + active_tab + ' h3').text("Error")
+      setLoading(false, true)
     }
 });
 }
