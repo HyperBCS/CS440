@@ -83,6 +83,8 @@ def get_grid():
 def showhello(filename = None):
     mypath = dirname(realpath(__file__)) + "/../grids"
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+    if onlyfiles is not None:
+        onlyfiles.sort()
     return render_template('/grid.html', files = onlyfiles, filename = filename)
 
 

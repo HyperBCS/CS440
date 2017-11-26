@@ -8,25 +8,33 @@ ROWS = 120
 COLS = 160
 n = 5
 
+# admissable
 def heur1(point, end):
 	std = math.hypot(point[0] - end[0], point[1] - end[1])
-	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
+	return std * 0.25
 
+# given from pdf
 def heur2(point, end):
 	std = math.hypot(point[0] - end[0], point[1] - end[1])
 	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
 
+# manhattan
 def heur3(point, end):
-	std = math.hypot(point[0] - end[0], point[1] - end[1])
-	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
+	std = abs(point[0] - end[0]) +  abs(point[1] - end[1])
+	return std
 
+# avg of manhattan and euc
 def heur4(point, end):
-	std = math.hypot(point[0] - end[0], point[1] - end[1])
-	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
+	man = abs(point[0] - end[0]) +  abs(point[1] - end[1])
+	euc = math.hypot(point[0] - end[0], point[1] - end[1])
+	return (man + euc) / 2
 
+# Chebyshev distanc
 def heur5(point, end):
-	std = math.hypot(point[0] - end[0], point[1] - end[1])
-	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
+	dx = abs(point[1] - end[1])
+	dy = abs(point[0] - end[0])
+	std = (dx + dy) - min(dx, dy)
+	return std
 
 # returns g + w*h for the specified hueristic index
 def key(s, i, g, end, w, g_h_f):
