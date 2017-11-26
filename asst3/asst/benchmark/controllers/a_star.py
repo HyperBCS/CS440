@@ -7,10 +7,15 @@ from controllers import utils, vertex, fringe
 ROWS = 120
 COLS = 160
 
+def min_d(point, end):
+	std = math.hypot(point[0] - end[0], point[1] - end[1])
+	return 0.25*(std)
+
 def heur(point, end):
 	std = math.hypot(point[0] - end[0], point[1] - end[1])
-	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
+	return std * 0.25
 
+@profile
 def solve(num_arr, start, end, w=1):
 	goal = vertex.Vertex(end, 0)
 	g = {}
@@ -27,7 +32,7 @@ def solve(num_arr, start, end, w=1):
 		s = fr.pop()
 		if s == goal:
 			path = utils.goal_path(start, end, parent)
-			return True, path, g_h_f
+			return True, path, g_h_f, len(closed)
 		closed.add(s)
 		for s_p in utils.succ(num_arr,s, closed):
 			if s_p not in fr.to_list():
@@ -35,7 +40,7 @@ def solve(num_arr, start, end, w=1):
 				g[sp_cid] = math.inf
 				parent[sp_cid] = None
 			update_vertex(s, s_p, g, parent, fr, end, num_arr,w, g_h_f)
-	return False, [], []
+	return False, [], [], len(closed)
 
 
 def update_vertex(s, s_p, g, parent, fr, end, num_arr, w, g_h_f):

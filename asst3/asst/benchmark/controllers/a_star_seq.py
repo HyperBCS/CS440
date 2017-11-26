@@ -118,7 +118,8 @@ def solve(num_arr, start, end, w=[1, 1.25]):
 			if fr[i].minkey().g_h <= w[1] * fr[i].minkey().g_h:
 				if g[i][goal_cid] <= fr[i].minkey().g_h:
 					if g[i][goal_cid] < math.inf:
-						return True, utils.goal_path(start, end, parent[i]), g_h_f[i]
+						avg_expanded = [len(y) for y in closed]
+						return True, utils.goal_path(start, end, parent[i]), g_h_f[i], np.mean(avg_expanded)
 				else:
 					s = fr[i].top()
 					expand_state(s, i, fr, g, parent, num_arr, closed, end, w,g_h_f)
@@ -126,7 +127,8 @@ def solve(num_arr, start, end, w=[1, 1.25]):
 			else:
 				if g[0][goal_cid] <= fr[0].minkey().g_h:
 					if g[0][goal_cid] < math.inf:
-						return True, utils.goal_path(start, end, parent[i]), g_h_f[0]
+						avg_expanded = [len(y) for y in closed]
+						return True, utils.goal_path(start, end, parent[i]), g_h_f[0], np.mean(avg_expanded)
 				else:
 					s = fr[i].top()
 					expand_state(s, 0, fr, g, parent, num_arr, closed, end, w,g_h_f)
