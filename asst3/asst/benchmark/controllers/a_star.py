@@ -13,7 +13,7 @@ def min_d(point, end):
 
 def heur(point, end):
 	std = math.hypot(point[0] - end[0], point[1] - end[1])
-	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
+	return std * 0.25
 
 
 def solve(num_arr, start, end, w=1):
