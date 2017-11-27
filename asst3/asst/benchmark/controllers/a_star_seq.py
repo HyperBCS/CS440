@@ -10,21 +10,25 @@ n = 5
 
 # admissable
 def heur1(point, end):
+	print("here")
 	std = math.hypot(point[0] - end[0], point[1] - end[1])
 	return std * 0.25
 
 # given from pdf
 def heur2(point, end):
+	print("here2")
 	std = math.hypot(point[0] - end[0], point[1] - end[1])
 	return math.sqrt(2)*0.25*(std) + 2*math.sqrt(2)*(std) - 0.25*(std)
 
 # manhattan
 def heur3(point, end):
+	print("here3")
 	std = abs(point[0] - end[0]) +  abs(point[1] - end[1])
 	return std
 
 # avg of manhattan and euc
 def heur4(point, end):
+	print("here4")
 	man = abs(point[0] - end[0]) +  abs(point[1] - end[1])
 	euc = math.hypot(point[0] - end[0], point[1] - end[1])
 	return (man + euc) / 2
