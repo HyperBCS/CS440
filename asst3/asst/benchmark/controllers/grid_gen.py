@@ -1,6 +1,8 @@
 import random, math
 import numpy as np
 import heapq
+import traceback
+import sys, traceback
 import time
 from copy import deepcopy
 
@@ -31,19 +33,28 @@ def add_highway(num_arr):
         mov_y = -1
     x_c = bounary_start[0]
     y_c = bounary_start[1]
-    for x in range(0,5):
-        if x_c + 20 * mov_x >= ROWS or x_c + 20 * mov_x < 0 or y_c + 20 * mov_y >= COLS or y_c + 20 * mov_y < 0:
-            return -1
-        for a in range(0,20):
-            if num_arr[x_c][y_c] == 'a' or num_arr[x_c][y_c] == 'b':
+    done = False
+    x = 0
+    while True:
+        try:
+            for a in range(0,20):
+                if x_c > ROWS - 1 or x_c < 0 or y_c  > COLS - 1 or y_c < 0 and x < 4:
+                    raise()
+                if num_arr[x_c][y_c] == 'a' or num_arr[x_c][y_c] == 'b':
+                    return -1
+                if num_arr[x_c][y_c] == '1':
+                    num_arr[x_c][y_c] = 'a'
+                elif num_arr[x_c][y_c] == '2':
+                    num_arr[x_c][y_c] = 'b'
+                if a < 19:
+                    x_c = x_c + mov_x
+                    y_c  = y_c + mov_y
+        except:
+            print("here")
+            if x >= 5:
+                return
+            else:
                 return -1
-            if num_arr[x_c][y_c] == '1':
-                num_arr[x_c][y_c] = 'a'
-            elif num_arr[x_c][y_c] == '2':
-                num_arr[x_c][y_c] = 'b'
-            if a < 19:
-                x_c = x_c + mov_x
-                y_c  = y_c + mov_y
         if random.random() < 0.4:
             if abs(mov_x) == 1:
                 mov_y = 1 if bool(random.getrandbits(1)) else -1
@@ -53,6 +64,7 @@ def add_highway(num_arr):
                 mov_y = 0
         x_c = x_c + mov_x
         y_c  = y_c + mov_y
+        x += 1
 
 def make_start_end(num_arr):
     while True:
